@@ -46,9 +46,9 @@ HighLevelQuery::~HighLevelQuery()
 
 
 void
-HighLevelQuery::_ManageEntry(const entry_ref& entry)
+HighLevelQuery::_ManageEntry(const entry_ref& entryRef)
 {
-	BNode node(&entry);
+	BNode node(&entryRef);
 	status_t err2 = node.InitCheck();
 	if (err2 != B_OK) {
 		printf("error opening node err=%s\n", strerror(err2));
@@ -63,19 +63,19 @@ HighLevelQuery::_ManageEntry(const entry_ref& entry)
 			return;
 		}
 
-		fEntries.insert(EntryMap::value_type(nodeRef, entry));
+		fEntries.insert(EntryMap::value_type(nodeRef, entryRef));
 
 		// needed for the "query entry rename" problem
 		status_t err = watch_node(&nodeRef,
 			B_WATCH_NAME | B_WATCH_STAT | B_WATCH_ATTR, this);
 		fEntryCount++;
 		if (sVerbose || err != B_OK) {
-			BPath path(&entry);
+			BPath path(&entryRef);
 			printf("%lu HighLevelQuery::_ManageEntry (%lli, %s). Start watching err=%s\n", fEntryCount,
 				nodeRef.node, path.Path(), strerror(err));
 		}
 		
-		_NotifyEntryAdded(entry);
+		_NotifyEntryAdded(nodeRef, entryRef);
 
 		// test, read some attributes
 
@@ -112,17 +112,20 @@ void
 HighLevelQuery::_UnmanageEntry(const node_ref& nodeRef)
 {
 	EntryMap::iterator it = fEntries.find(nodeRef);
-	if (it != fEntries.end()) {
-		fEntries.erase(it);
+	if (it != fEntries.end()) {		
 
 		// needed for the "query entry rename" problem
-		status_t err = B_OK; // watch_node(&nodeRef, B_STOP_WATCHING, this);
+		status_t err = watch_node(&nodeRef, B_STOP_WATCHING, this);
 
 		if (sVerbose || err != B_OK) {
 			BPath path(&it->second);
 			printf("HighLevelQuery::_UnmanageEntry (%lli, %s), Stop watching B_WATCH_NAME err=%s\n",
 				nodeRef.node, path.Path(), strerror(err));
 		}
+		
+		_NotifyEntryRemoved(nodeRef, (*it).second);		
+		fEntries.erase(it);
+				
 	} else
 		printf("HighLevelQuery::_UnmanageEntry node %lli is not managed!!!\n", nodeRef.node);
 }
@@ -210,18 +213,34 @@ void HighLevelQuery::_NodeMonitorUpdate(BMessage* message)
 
 	switch (opcode) {
 		case B_ENTRY_CREATED:
+		{
 			printf("%s MONITOR_ B_ENTRY_CREATED\n", info);
-			break;
 
+			entry_ref entryRef;
+			entryRef.device = device;
+			entryRef.directory = directory;
+			entryRef.set_name(name);
+
+			_ManageEntry(entryRef);
+			break;
+		}
 		case B_ENTRY_REMOVED:
+		{
 			printf("%s MONITOR_ B_ENTRY_REMOVED\n", info);
-			break;
 
+			node_ref nodeRef;
+			nodeRef.device = device;
+			nodeRef.node = node;
+
+			_UnmanageEntry(nodeRef);
+			break;
+		}
 		case B_ENTRY_MOVED:
 		{
 			// can be about:
 			// a query node that we're monitoring and which name has changed
-			// a file in a directory that we monitor that moved in
+			// a file in a directory that we monitor that moved in or changed name
+			// TODO: differentiate the cases
 
 			int64 fromDirectory;
 			int64 toDirectory;
@@ -298,29 +317,29 @@ HighLevelQuery::AddListener(HighLevelQueryListener* listener)
 
 
 void
-HighLevelQuery::_NotifyEntryAdded(const entry_ref& entry)
+HighLevelQuery::_NotifyEntryAdded(const node_ref& nodeRef, const entry_ref& entryRef)
 {
 	ListenerList::iterator it = fListeners.begin();
 	for(; it != fListeners.end(); it++)
-		(*it)->EntryAdded(entry);
+		(*it)->EntryAdded(nodeRef, entryRef);
 }
 
 
 void
-HighLevelQuery::_NotifyEntryRemoved(const entry_ref& entry)
+HighLevelQuery::_NotifyEntryRemoved(const node_ref& nodeRef, const entry_ref& entryRef)
 {
 	ListenerList::iterator it = fListeners.begin();
 	for(; it != fListeners.end(); it++)
-		(*it)->EntryRemoved(entry);
+		(*it)->EntryRemoved(nodeRef, entryRef);
 }
 
 
 void
-HighLevelQuery::_NotifyEntryChanged(const entry_ref& entry)
+HighLevelQuery::_NotifyEntryChanged(const node_ref& nodeRef, const entry_ref& entryRef)
 {
 	ListenerList::iterator it = fListeners.begin();
 	for(; it != fListeners.end(); it++)
-		(*it)->EntryChanged(entry);
+		(*it)->EntryChanged(nodeRef, entryRef);
 }
 
 

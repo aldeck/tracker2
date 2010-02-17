@@ -9,14 +9,15 @@
 #define _HIGH_LEVEL_QUERY_LISTENER_H
 
 struct entry_ref;
+struct node_ref;
 
 class HighLevelQueryListener {
 public:
 	virtual				~HighLevelQueryListener() {};
 
-	virtual	void		EntryAdded(const entry_ref& entry) = 0;
-	virtual	void		EntryRemoved(const entry_ref& entry) = 0;
-	virtual	void		EntryChanged(const entry_ref& entry) = 0;
+	virtual	void		EntryAdded(const node_ref& nodeRef, const entry_ref& entryRef) = 0;
+	virtual	void		EntryRemoved(const node_ref& nodeRef, const entry_ref& entryRef) = 0;
+	virtual	void		EntryChanged(const node_ref& nodeRef, const entry_ref& entryRef) = 0;
 };
 
 #endif	// _HIGH_LEVEL_QUERY_LISTENER_H

@@ -37,9 +37,9 @@ private:
 									
 			
 			
-			void				_NotifyEntryAdded(const entry_ref& entry);
-			void				_NotifyEntryRemoved(const entry_ref& entry);
-			void				_NotifyEntryChanged(const entry_ref& entry);
+			void				_NotifyEntryAdded(const node_ref& nodeRef, const entry_ref& entryRef);
+			void				_NotifyEntryRemoved(const node_ref& nodeRef, const entry_ref& entryRef);
+			void				_NotifyEntryChanged(const node_ref& nodeRef, const entry_ref& entryRef);
 			
 
 			void				_QueryUpdate(BMessage* message);

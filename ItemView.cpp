@@ -95,22 +95,22 @@ void ItemView::_Test()
 
 
 void
-ItemView::EntryAdded(const entry_ref& ref)
+ItemView::EntryAdded(const node_ref& nodeRef, const entry_ref& entryRef)
 {
 
-	Item* item = new PoseItem(this, ref);
+	Item* item = new PoseItem(this, entryRef);
 	AddItem(item);
 }
 
 
 void
-ItemView::EntryRemoved(const entry_ref& entry)
+ItemView::EntryRemoved(const node_ref& nodeRef, const entry_ref& entryRef)
 {
 }
 
 
 void
-ItemView::EntryChanged(const entry_ref& entry)
+ItemView::EntryChanged(const node_ref& nodeRef, const entry_ref& entryRef)
 {
 }
 

@@ -44,9 +44,9 @@ public:
 	int				CurrentLayouterIndex() const;
 	
 	// HighLevelQueryListener
-	virtual	void	EntryAdded(const entry_ref& entry);
-	virtual	void	EntryRemoved(const entry_ref& entry);
-	virtual	void	EntryChanged(const entry_ref& entry);
+	virtual	void	EntryAdded(const node_ref& nodeRef, const entry_ref& entryRef);
+	virtual	void	EntryRemoved(const node_ref& nodeRef, const entry_ref& entryRef);
+	virtual	void	EntryChanged(const node_ref& nodeRef, const entry_ref& entryRef);
 
 
 protected:
