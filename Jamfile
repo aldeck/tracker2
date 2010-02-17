@@ -2,6 +2,7 @@ SubDir HAIKU_TOP src apps tracker2 ;
 
 SEARCH_SOURCE += [ FDirName $(SUBDIR) item ] ;
 SEARCH_SOURCE += [ FDirName $(SUBDIR) layouter ] ;
+SEARCH_SOURCE += [ FDirName $(SUBDIR) model ] ;
 SEARCH_SOURCE += [ FDirName $(SUBDIR) spatialCache ] ;
 
 UsePrivateHeaders shared ;
