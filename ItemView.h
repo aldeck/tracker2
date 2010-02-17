@@ -21,7 +21,7 @@ class Layouter;
 
 const uint32 kMsgExtentChanged = 'ExCh';
 
-class ItemView : public BView {
+class ItemView : public BView, public HighLevelQueryListener {
 public:
 					ItemView(BRect frame);
 					~ItemView();
@@ -42,6 +42,12 @@ public:
 	virtual BRect	Extent() const;
 
 	int				CurrentLayouterIndex() const;
+	
+	// HighLevelQueryListener
+	virtual	void	EntryAdded(const entry_ref& entry);
+	virtual	void	EntryRemoved(const entry_ref& entry);
+	virtual	void	EntryChanged(const entry_ref& entry);
+
 
 protected:
 	void			_MouseDrag(BPoint point);

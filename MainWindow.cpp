@@ -53,7 +53,7 @@ MainWindow::QuitRequested()
 void
 MainWindow::MessageReceived(BMessage *message)
 {
-	message->PrintToStream();
+	//message->PrintToStream();
 	switch (message->what) {
 		case kMsgExtentChanged:
 			_UpdateScrollBars();

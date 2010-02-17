@@ -94,6 +94,30 @@ void ItemView::_Test()
 }
 
 
+void
+ItemView::EntryAdded(const entry_ref& ref)
+{
+	BEntry entry(&ref);
+	char name[256]; //REF_SIZE
+	entry.GetName(name);
+
+	Item* item = new PoseItem(this, name);
+	AddItem(item);
+}
+
+
+void
+ItemView::EntryRemoved(const entry_ref& entry)
+{
+}
+
+
+void
+ItemView::EntryChanged(const entry_ref& entry)
+{
+}
+
+
 int
 ItemView::CurrentLayouterIndex() const
 {
@@ -157,6 +181,8 @@ ItemView::AttachedToWindow()
 	Window()->AddHandler(&fHighLevelQuery);
 		// temporariliy set here
 		// to receive node monitoring message
+		
+	fHighLevelQuery.AddListener(this);
 		
 	_Test();
 }

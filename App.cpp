@@ -48,7 +48,7 @@ App::QuitRequested()
 void
 App::MessageReceived(BMessage *message)
 {
-	message->PrintToStream();
+	//message->PrintToStream();
 }
 
 
