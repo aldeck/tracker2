@@ -6,10 +6,34 @@
  * 		Alexandre Deckner <alex@zappotek.com>
  */
 
-#include "Layouter.h"
+#include "ItemManager.h"
 
 
-Layouter::~Layouter()
+ItemManager::ItemManager()
 {
 
+}
+
+
+ItemManager::~ItemManager()
+{
+
+}
+
+
+void
+ItemManager::ItemAdded(Item* item)
+{
+}
+
+
+void
+ItemManager::ItemRemoved(Item* item)
+{
+}
+
+
+void
+ItemManager::ItemChanged(Item* item)
+{
 }

@@ -44,11 +44,34 @@ IconItem::IconItem(ItemView* parentItemView)
 		break;
 	}
 	sIconIndex++;*/
+	//_Load();
 }
 
 
 IconItem::~IconItem()
 {
+	delete fBitmap;
+}
+
+
+void
+IconItem::_Load()
+{
+	if (fBitmap == NULL) {	
+		//printf("IconItem::_Load()\n");	
+		BMessage types;
+		BMimeType::GetInstalledTypes(&types);
+	
+		sIconIndex++;
+		
+		const char* type;
+		if (types.FindString("types", sIconIndex % 256, &type) != B_OK) {
+			printf("can't find type %d\n", sIconIndex);
+			return;
+		}
+			
+		fBitmap = IconCache::GetInstance()->GetIcon(type);
+	}
 }
 
 
@@ -67,20 +90,7 @@ IconItem::Draw()
 {
 	//lazy load
 	if (fBitmap == NULL) {		
-		printf("load\n");
-
-		BMessage types;
-		BMimeType::GetInstalledTypes(&types);
-	
-		sIconIndex++;
-		
-		const char* type;
-		if (types.FindString("types", sIconIndex % 256, &type) != B_OK) {
-			printf("can't find type %d\n", sIconIndex);
-			return;
-		}
-			
-		fBitmap = IconCache::GetInstance()->GetIcon(type);
+		_Load();
 	}
 	
 	fParentItemView->DrawBitmap(fBitmap, fPositions[fParentItemView->CurrentLayouterIndex()]);

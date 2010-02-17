@@ -49,7 +49,7 @@ IconCache::GetIcon(const char* name) //todo const
 			fBitmaps.insert(BitmapMap::value_type(name, bitmap));
 			return bitmap;
 		} else {
-			printf("IconCache::GetIcon error, couldn't retrieve icon for name = '%s'\n", name);
+			//printf("IconCache::GetIcon error, couldn't retrieve icon for name = '%s'\n", name);
 			return NULL;
 		}
 	}

@@ -5,78 +5,33 @@
  * Authors:
  *		Alexandre Deckner, alex@zappotek.com
  */
+ 
+#include "HighLevelQuery.h"
 
+#include <Directory.h>
+#include <NodeMonitor.h>
+#include <Path.h>
 
-#include <stdio.h>
+/*#include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
 
 #include <Application.h>
-#include <Directory.h>
+
 #include <Entry.h>
 #include <Node.h>
-#include <NodeMonitor.h>
-#include <Path.h>
+
+
 #include <Query.h>
 #include <fs_attr.h>
 #include <Volume.h>
 #include <VolumeRoster.h>
 #include <String.h>
 
-#include <ObjectList.h>
+#include <ObjectList.h>*/
 
-#include <map>
-
-//static const uint32 kMsgAddQuery = 'adqu';
-
-/*extern const char *__progname;
-static const char *kProgramName = __progname;*/
-
-// Option variables.
-/*static bool sAllVolumes = false;		// Query all volumes?
-static bool sEscapeMetaChars = true;	// Escape metacharacters?
-static bool sFilesOnly = false;			// Show only files?
-static bool sVerbose = false;*/
-
-static uint32 sEntryCount = 0;
-
-struct lesserThanRefNode
-{
-  bool operator()(const node_ref & a, const node_ref & b)
-  {
-  	return a.device < b.device || (a.device == b.device && a.node < b.node);
-  }
-};
-
-
-class HighLevelQuery {
-public:
-								HighLevelQuery();
-	virtual						~HighLevelQuery();	
-
-	virtual void				MessageReceived(BMessage* message);
-
-private:
-			void				_PrintUsage();
-			
-			void				_AddQuery(BVolume& volume,
-									const char* predicate);
-									
-			//void				_AddFilter(...);
-									
-			void				_PerformQuery(BQuery& query);
-
-			void				_QueryUpdate(BMessage* message);
-			void				_NodeMonitorUpdate(BMessage* message);
-
-			void				_ManageEntry(const entry_ref& entry);
-			void				_UnmanageEntry(const node_ref& node);
-			void				_UpdateEntry(const node_ref& nodeRef, const entry_ref& entry);
-
-			typedef std::map<node_ref, entry_ref, lesserThanRefNode> EntryMap;
-			EntryMap			fEntries;
-};
+static bool sVerbose = false;
 
 
 HighLevelQuery::HighLevelQuery()
@@ -111,12 +66,14 @@ HighLevelQuery::_ManageEntry(const entry_ref& entry)
 
 		// needed for the "query entry rename" problem
 		status_t err = watch_node(&nodeRef, B_WATCH_NAME | B_WATCH_STAT | B_WATCH_ATTR, this);
-		sEntryCount++;
+		fEntryCount++;
 		if (sVerbose || err != B_OK) {
 			BPath path(&entry);
-			printf("%lu HighLevelQuery::_ManageEntry (%lli, %s). Start watching err=%s\n", sEntryCount,
+			printf("%lu HighLevelQuery::_ManageEntry (%lli, %s). Start watching err=%s\n", fEntryCount,
 				nodeRef.node, path.Path(), strerror(err));
 		}
+		
+		_NotifyEntryAdded(entry);
 
 		// test, read some attributes
 
@@ -226,7 +183,7 @@ void HighLevelQuery::_QueryUpdate(BMessage* message)
 		}
 		default:
 			printf("%s QUERY_ UNMANAGED OPCODE\n", info);
-			BApplication::MessageReceived(message);
+			//BApplication::MessageReceived(message);
 			break;
 	}
 }
@@ -303,7 +260,7 @@ void HighLevelQuery::_NodeMonitorUpdate(BMessage* message)
 
 		default:
 			printf("%s MONITOR_ UNMANAGED OPCODE\n", info);
-			BApplication::MessageReceived(message);
+			//BApplication::MessageReceived(message);
 			break;
 	}
 }
@@ -322,9 +279,46 @@ HighLevelQuery::MessageReceived(BMessage* message)
 			break;
 
 		default:
-			BApplication::MessageReceived(message);
+			printf("HighLevelQuery::MessageReceived unknown message\n");
+			//BApplication::MessageReceived(message);
 			break;
 	}
+}
+
+
+void
+HighLevelQuery::AddListener(HighLevelQueryListener* listener)
+{
+	// TODO some checking
+	fListeners.push_back(listener);
+}
+
+
+
+void
+HighLevelQuery::_NotifyEntryAdded(const entry_ref& entry)
+{
+	ListenerList::iterator it = fListeners.begin();
+	for(; it != fListeners.end(); it++)
+		(*it)->EntryAdded(entry);
+}
+
+
+void
+HighLevelQuery::_NotifyEntryRemoved(const entry_ref& entry)
+{
+	ListenerList::iterator it = fListeners.begin();
+	for(; it != fListeners.end(); it++)
+		(*it)->EntryRemoved(entry);
+}
+
+
+void
+HighLevelQuery::_NotifyEntryChanged(const entry_ref& entry)
+{
+	ListenerList::iterator it = fListeners.begin();
+	for(; it != fListeners.end(); it++)
+		(*it)->EntryChanged(entry);
 }
 
 
@@ -377,7 +371,7 @@ HighLevelQuery::_Perform()
 
 	node_ref ref;
 	directory.GetNodeRef(&ref);
-	status = watch_node(&ref, B_WATCH_ALL, this);
+	status_t status = watch_node(&ref, B_WATCH_ALL, this);
 	printf("Watching directory, status=%s\n", strerror(status));
 
 	bigtime_t deltaTime = system_time() - startTime;

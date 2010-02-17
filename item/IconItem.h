@@ -23,6 +23,8 @@ public:
 	virtual	BRect	Frame() const;
 
 protected:
+	void			_Load();
+
 	BBitmap*		fBitmap;
 	static int		sIconIndex;
 };
