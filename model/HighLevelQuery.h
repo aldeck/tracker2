@@ -24,6 +24,8 @@ class HighLevelQuery : public BHandler {
 public:
 								HighLevelQuery();
 	virtual						~HighLevelQuery();	
+	
+			void				Perform();
 
 	virtual void				MessageReceived(BMessage* message);
 			void				AddListener(HighLevelQueryListener* listener);
@@ -33,7 +35,7 @@ private:
 			//						const char* predicate);									
 			//void				_AddFilter(...);
 									
-			void				_Perform();
+			
 			
 			void				_NotifyEntryAdded(const entry_ref& entry);
 			void				_NotifyEntryRemoved(const entry_ref& entry);
@@ -63,6 +65,7 @@ private:
 			ListenerList		fListeners;
 			
 			uint32				fEntryCount; //debug
+			bool				fDebug;
 };
 
 #endif

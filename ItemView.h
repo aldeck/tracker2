@@ -13,6 +13,7 @@
 #include <vector>
 
 #include "ItemList.h"
+#include "model/HighLevelQuery.h"
 
 class BScrollBar;
 class Item;
@@ -34,7 +35,8 @@ public:
 	virtual void	KeyUp(const char* bytes, int32 numBytes);
 	virtual	void	MouseDown(BPoint point);
 	virtual	void	MouseUp(BPoint point);
-	virtual void	MouseMoved(BPoint point, uint32 transit, const BMessage* message);
+	virtual void	MouseMoved(BPoint point, uint32 transit,
+						const BMessage* message);
 	virtual void	MessageReceived(BMessage *message);
 	
 	virtual BRect	Extent() const;
@@ -63,6 +65,8 @@ protected:
 	BPoint			fDraggingPointOffset;
 
 	bool			fDebugDrawing;
+	
+	HighLevelQuery	fHighLevelQuery;
 };
 
 #endif /* _POSEVIEW_H */

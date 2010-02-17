@@ -40,13 +40,6 @@ ItemView::ItemView(BRect frame)
 {
 	fLayouters.push_back(new GridLayouter(this, BPoint(50, 50), 0));
 	fLayouters.push_back(new ListLayouter(this, 50, 1));
-
-	_Test();
-
-	for (uint32 j = 0; j < fLayouters.size(); j++)		// faire un callback pose added
-		fLayouters[j]->LayoutAllItems();
-			
-	_NotifyExtentChanged();
 }
 
 
@@ -65,10 +58,11 @@ void ItemView::_Test()
 			fLayouters[j]->AddItem(item);
 	}*/
 	
-	uint32 count = 0;
+	/*uint32 count = 0;
 
 	for (int i = 0; i < 1; i++) {
-		BDirectory directory("/Data2/mail/Haiku-commits");// "/system/apps");//  /Data2/mail/Haiku-bugs
+		BDirectory directory("/Data2/mail/Haiku-commits");
+			// "/system/apps");//  /Data2/mail/Haiku-bugs
 		entry_ref ref;
 		
 		while (true) {
@@ -89,10 +83,14 @@ void ItemView::_Test()
 				printf("%lu \n", count);
 		}
 	}
-	printf("Total added %lu \n", count);
-	//sorting test
-	//std::sort(fItems.begin(), fItems.end(),    // range
-    //     less_Item);             // sorting criterion
+	printf("Total added %lu \n", count);*/
+	
+	fHighLevelQuery.Perform();
+	
+	for (uint32 j = 0; j < fLayouters.size(); j++)		// faire un callback pose added
+		fLayouters[j]->LayoutAllItems();
+			
+	_NotifyExtentChanged();	
 }
 
 
@@ -156,6 +154,11 @@ ItemView::AttachedToWindow()
 
 	AddFilter(new DragTrackingFilter(this, kMsgDragStarted));
 
+	Window()->AddHandler(&fHighLevelQuery);
+		// temporariliy set here
+		// to receive node monitoring message
+		
+	_Test();
 }
 
 

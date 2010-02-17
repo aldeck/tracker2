@@ -36,6 +36,7 @@ static bool sVerbose = false;
 
 HighLevelQuery::HighLevelQuery()
 {
+	fDebug = false;
 }
 
 
@@ -65,7 +66,8 @@ HighLevelQuery::_ManageEntry(const entry_ref& entry)
 		fEntries.insert(EntryMap::value_type(nodeRef, entry));
 
 		// needed for the "query entry rename" problem
-		status_t err = watch_node(&nodeRef, B_WATCH_NAME | B_WATCH_STAT | B_WATCH_ATTR, this);
+		status_t err = watch_node(&nodeRef,
+			B_WATCH_NAME | B_WATCH_STAT | B_WATCH_ATTR, this);
 		fEntryCount++;
 		if (sVerbose || err != B_OK) {
 			BPath path(&entry);
@@ -323,7 +325,7 @@ HighLevelQuery::_NotifyEntryChanged(const entry_ref& entry)
 
 
 void
-HighLevelQuery::_Perform()
+HighLevelQuery::Perform()
 {
 	/*status_t status = query.Fetch();
 	if (status != B_OK) {
@@ -352,7 +354,7 @@ HighLevelQuery::_Perform()
 		count++;
 	}*/
 
-	BDirectory directory("/Data2/mail/Haiku-commits");// "/system/apps");//  /Data2/mail/Haiku-bugs
+	BDirectory directory("/boot/home/Desktop/tracker2test");// "/system/apps");//  /Data2/mail/Haiku-bugs
 	status_t error = directory.InitCheck();
 
 	if (error != B_OK)
