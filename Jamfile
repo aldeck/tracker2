@@ -1,0 +1,39 @@
+SubDir HAIKU_TOP src apps tracker2 ;
+
+SEARCH_SOURCE += [ FDirName $(SUBDIR) item ] ;
+SEARCH_SOURCE += [ FDirName $(SUBDIR) layouter ] ;
+SEARCH_SOURCE += [ FDirName $(SUBDIR) spatialCache ] ;
+
+UsePrivateHeaders shared ;
+UseLibraryHeaders icon ;
+
+Application Tracker2 :
+	App.cpp
+	MainWindow.cpp
+	Layouter.cpp
+	ItemView.cpp
+	Item.cpp
+
+	# layouter
+	GridLayouter.cpp
+	ListLayouter.cpp
+
+	# item
+	IconItem.cpp
+	IconCache.cpp
+	FileItem.cpp
+	PoseItem.cpp
+	TextItem.cpp
+	
+	
+	# spatialCache
+	SpatialCache.cpp
+	ReferenceSpatialCache.cpp
+	GenericSpatialCache.cpp
+	
+	# model
+	HighLevelQuery.cpp
+
+	: be
+	: Tracker2.rdef
+;
