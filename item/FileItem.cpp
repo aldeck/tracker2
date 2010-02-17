@@ -28,7 +28,7 @@ FileItem::FileItem(ItemView* parentItemView, const entry_ref* ref)
 		char mimeString[256]; //MIME8TYPE8SIZE
 		ssize_t size = node.ReadAttr("BEOS:TYPE", B_MIME_STRING_TYPE, 0, mimeString, 256);
 		if (size > 0)
-			fBitmap = IconCache::GetInstance()->GetIcon(mimeString);
+			fBitmap = IconCache::GetInstance()->GetIconFromType(mimeString);
 		else
 			printf("FileItem::FileItem error reading mimetype, ref = '%s'", ref->name);
 

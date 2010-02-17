@@ -10,13 +10,15 @@
 
 #include "Item.h"
 
+#include <Entry.h>
+
 class BBitmap;
 
 class ItemView;
 
 class IconItem : public Item {
 public:
-					IconItem(ItemView* parentItemView);
+					IconItem(ItemView* parentItemView, const entry_ref& ref);
 	virtual			~IconItem ();
 
 	virtual	void	Draw();
@@ -26,7 +28,8 @@ protected:
 	void			_Load();
 
 	BBitmap*		fBitmap;
-	static int		sIconIndex;
+	//static int		sIconIndex;
+	entry_ref		fEntryRef;	
 };
 
 #endif /* _ICON_ITEM_H */

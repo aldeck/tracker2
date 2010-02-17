@@ -18,10 +18,11 @@ class BPoint;
 class ItemView;
 class IconItem;
 class TextItem;
+struct entry_ref;
 
 class PoseItem : public Item {
 public:
-					PoseItem(ItemView* parentItemView, const BString& name);
+					PoseItem(ItemView* parentItemView, const entry_ref& ref);
 	virtual			~PoseItem();
 	
 	virtual void	SetPosition(const BPoint& position, uint32 positionId);

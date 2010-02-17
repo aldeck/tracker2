@@ -12,14 +12,21 @@
 #include "TextItem.h"
 #include "ItemView.h"
 
+#include <Entry.h>
 
-PoseItem::PoseItem(ItemView* parentItemView, const BString& name)
+PoseItem::PoseItem(ItemView* parentItemView, const entry_ref& ref)
 	:
 	Item(parentItemView),
 	fIconItem(NULL),
 	fNameItem(NULL)
-{
-	fIconItem = new IconItem(parentItemView);
+{	
+
+	
+	fIconItem = new IconItem(parentItemView, ref);
+	
+	BEntry entry(&ref);
+	char name[B_FILE_NAME_LENGTH];
+	entry.GetName(name);
 	fNameItem = new TextItem(parentItemView, name);
 
 	//parentItemView->AddItem(fIconItem);

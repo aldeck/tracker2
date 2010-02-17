@@ -16,12 +16,16 @@
 #include "IconCache.h"
 
 
-int IconItem::sIconIndex = 0;
+//int IconItem::sIconIndex = 0;
 
-IconItem::IconItem(ItemView* parentItemView)
+IconItem::IconItem(ItemView* parentItemView, const entry_ref& ref)
 	:
-	Item(parentItemView)
+	Item(parentItemView),
+	fEntryRef(ref)
 {
+	
+	// either a type icon, disk icon or custom exe icon...
+	
 	fBitmap = NULL; //new BBitmap(BRect(0, 0, 32, 32), 0, B_RGBA32);
 
 	/*BMessage types;
@@ -59,7 +63,7 @@ IconItem::_Load()
 {
 	if (fBitmap == NULL) {	
 		//printf("IconItem::_Load()\n");	
-		BMessage types;
+		/*BMessage types;
 		BMimeType::GetInstalledTypes(&types);
 	
 		sIconIndex++;
@@ -70,7 +74,9 @@ IconItem::_Load()
 			return;
 		}
 			
-		fBitmap = IconCache::GetInstance()->GetIcon(type);
+		fBitmap = IconCache::GetInstance()->GetIconFromType(type);*/
+		
+		fBitmap = IconCache::GetInstance()->GetIcon(fEntryRef);
 	}
 }
 

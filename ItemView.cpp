@@ -97,11 +97,8 @@ void ItemView::_Test()
 void
 ItemView::EntryAdded(const entry_ref& ref)
 {
-	BEntry entry(&ref);
-	char name[256]; //REF_SIZE
-	entry.GetName(name);
 
-	Item* item = new PoseItem(this, name);
+	Item* item = new PoseItem(this, ref);
 	AddItem(item);
 }
 
