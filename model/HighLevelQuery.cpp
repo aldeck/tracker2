@@ -14,24 +14,10 @@
 #include <Path.h>
 #include <String.h>
 
-/*#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <unistd.h>
+#include <errno.h>
+#include <sys/resource.h>
+#include <sys/stat.h>
 
-#include <Application.h>
-
-#include <Entry.h>
-#include <Node.h>
-
-
-#include <Query.h>
-
-#include <Volume.h>
-#include <VolumeRoster.h>
-#include <String.h>
-
-#include <ObjectList.h>*/
 
 static bool sVerbose = false;
 
@@ -39,6 +25,18 @@ static bool sVerbose = false;
 HighLevelQuery::HighLevelQuery()
 {
 	fDebug = false;
+	
+	
+	// bump node monitor limit
+	//int32 DEFAULT_MON_NUM = 4096;	// copied from fsil.c
+	struct rlimit rl;
+	rl.rlim_cur = 16000;
+	rl.rlim_max = RLIM_SAVED_MAX;
+	if (setrlimit(RLIMIT_NOVMON, &rl) < 0)
+		printf("error bumping node monitor limit err=%s\n", strerror(errno));
+	else
+		printf("ok bumped node monitor to 16000\n");
+
 }
 
 
@@ -46,10 +44,13 @@ HighLevelQuery::~HighLevelQuery()
 {
 }
 
+static int foo = 0;
 
 void
 HighLevelQuery::_ManageEntry(const entry_ref& entryRef)
 {
+	
+	
 	BNode node(&entryRef);
 	status_t err2 = node.InitCheck();
 	if (err2 != B_OK) {
@@ -71,52 +72,86 @@ HighLevelQuery::_ManageEntry(const entry_ref& entryRef)
 		status_t err = watch_node(&nodeRef,
 			B_WATCH_NAME | B_WATCH_STAT | B_WATCH_ATTR, this);
 		fEntryCount++;
-		/*if (sVerbose || err != B_OK) {
+		if (sVerbose || err != B_OK) {
 			BPath path(&entryRef);
 			printf("%lu HighLevelQuery::_ManageEntry (%lli, %s). Start watching err=%s\n", fEntryCount,
 				nodeRef.node, path.Path(), strerror(err));
-		}*/
+		}
 		
-		_NotifyEntryAdded(nodeRef, entryRef);
+		//test disabled _NotifyEntryAdded(nodeRef, entryRef);
 
 		// test, read some attributes
-		/*node.RewindAttrs();
-		char attrName[B_ATTR_NAME_LENGTH];
-		printf("%s [ ", entryRef.name);
+		
+		//node.RewindAttrs();
+		/*char attrName[B_ATTR_NAME_LENGTH];
+		//printf("%s [ ", entryRef.name);
 		uint32 totalSize = 0;
 		while (node.GetNextAttrName(attrName) == B_OK) {
-   			printf("%s ", attrName);
+   			//printf("%s ", attrName);
    			attr_info info;
    			if (node.GetAttrInfo(attrName, &info) == B_OK) {
    				// read all attributes
    				char attrData[2048];
    				if (info.size < 2048) {
 	   				ssize_t read = node.ReadAttr(attrName, (type_code)0, (off_t)0, attrData, info.size);
-	   				printf("%lu/%lu ", read, info.size);
-	   				totalSize += info.size;
+	   				//printf("%lu/%lu ", read, info.size);
+	   				//totalSize += info.size;
+	   				foo += read;
 	   			} else {
 	   				printf("toobig!=%lu ", info.size);
 	   			}	   			
    			} else {
-	   			printf("noattrinfo '%s' ", strerror(err3));
+	   			printf("noattrinfo");
 	   		}
 		}
-		printf(" ] total %lu\n", totalSize);*/
+		//printf(" ] total %lu\n", totalSize);*/
 		
-		//node.RewindAttrs();		
+		// test, read one attribute
+		
 		//printf("%s [ ", entryRef.name);
-		printf("[ ");		
-		BString attribute;
+		//printf("[ ");		
+		/*BString attribute;
 		status_t err3 = node.ReadAttrString("MAIL:subject", &attribute);
 		if (err3 == B_OK)  				
-			printf("MAIL:subject %s", attribute.String());	   				
+			foo++;//printf("MAIL:subject %s", attribute.String());	   				
 		else
-			printf("can't read MAIL:subject attribute", strerror(err3));
+			foo--;//printf("can't read MAIL:subject attribute, %s", strerror(err3));*/
 
-		printf(" ]\n");
+		//printf(" ]\n");	
+		
+		// test, read icon
+		/*attr_info info;
+		if (node.GetAttrInfo("BEOS:ICON", &info) == B_OK) {			
+			char attrData[2048];
+			if (info.size < 2048) {
+				ssize_t read = node.ReadAttr("BEOS:ICON", (type_code)0, (off_t)0, attrData, info.size);
+				//printf("%lu/%lu \n", read, info.size);
+				foo += read;				
+			} else {
+				printf("toobig!=%lu ", info.size);
+			}	   			
+   		}*/
 		
 		
-
+		// le but final est de ne lire que les meta infos necessesaires au tri 
+		// si on ne veut pas de tri alors pas besoin de lire quoi que ce soit
+		// dans tous les cas le reste sera lu au moment de l'affichage
+		
+		// on peut ne pas vouloir de tri mais connaitre les positions custom pour
+		// savoir ce qu'on doit afficher en premier
+		
+		// dans les deux cas c'est une information d'affichage
+		
+		
+		// test, read stat
+	
+		// attention dans stat on relirait pas encore de_t et ino_t aka node_ref? 
+		struct stat statData;
+		status_t err4 = node.GetStat(&statData);
+		if (err4 == B_OK)
+			foo++;//printf("node.GetStat ok, filesize=%llu\n", statData.st_size);
+		else
+			foo--;//printf("can't read stat!\n");
 	}
 }
 
@@ -386,7 +421,7 @@ HighLevelQuery::Perform()
 		count++;
 	}*/
 
-	BDirectory directory("/Data2/mail/Haiku-bugs");//"/boot/home/Desktop/tracker2test");// "/system/apps");//  /Data2/mail/Haiku-bugs
+	BDirectory directory("/Data2/mail/Haiku-bugs");// /boot/home/Desktop/tracker2test   /system/apps   /Data2/mail/Haiku-bugs
 	status_t error = directory.InitCheck();
 
 	if (error != B_OK)
@@ -402,6 +437,7 @@ HighLevelQuery::Perform()
 
 		count++;
 	}
+	printf("foo %i\n", foo);
 
 	node_ref ref;
 	directory.GetNodeRef(&ref);
