@@ -24,10 +24,10 @@ PoseItem::PoseItem(ItemView* parentItemView, const entry_ref& ref)
 	
 	fIconItem = new IconItem(parentItemView, ref);
 	
-	BEntry entry(&ref);
+	/*BEntry entry(&ref);
 	char name[B_FILE_NAME_LENGTH];
-	entry.GetName(name);
-	fNameItem = new TextItem(parentItemView, name);
+	entry.GetName(name);*/
+	fNameItem = new TextItem(parentItemView, ref.name);
 
 	//parentItemView->AddItem(fIconItem);
 	//parentItemView->AddItem(fNameItem);

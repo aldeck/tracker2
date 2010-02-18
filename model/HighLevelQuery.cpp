@@ -9,8 +9,10 @@
 #include "HighLevelQuery.h"
 
 #include <Directory.h>
+#include <fs_attr.h>
 #include <NodeMonitor.h>
 #include <Path.h>
+#include <String.h>
 
 /*#include <stdio.h>
 #include <string.h>
@@ -24,7 +26,7 @@
 
 
 #include <Query.h>
-#include <fs_attr.h>
+
 #include <Volume.h>
 #include <VolumeRoster.h>
 #include <String.h>
@@ -69,40 +71,51 @@ HighLevelQuery::_ManageEntry(const entry_ref& entryRef)
 		status_t err = watch_node(&nodeRef,
 			B_WATCH_NAME | B_WATCH_STAT | B_WATCH_ATTR, this);
 		fEntryCount++;
-		if (sVerbose || err != B_OK) {
+		/*if (sVerbose || err != B_OK) {
 			BPath path(&entryRef);
 			printf("%lu HighLevelQuery::_ManageEntry (%lli, %s). Start watching err=%s\n", fEntryCount,
 				nodeRef.node, path.Path(), strerror(err));
-		}
+		}*/
 		
 		_NotifyEntryAdded(nodeRef, entryRef);
 
 		// test, read some attributes
-
-		/*	char buf[B_ATTR_NAME_LENGTH];
-			//printf("attrs [ ");
-			uint32 count = 0;
-			while (node.GetNextAttrName(buf) == B_OK) {
-	   			//printf("%s ", buf);
-	   			attr_info info;
-	   			status_t err3 = node.GetAttrInfo(buf, &info);
-	   			if (err3 == B_OK) {
-	   				// read all attributes
-	   				char attrData[1024];
-	   				if (info.size < 1024) {
-		   				ssize_t read = node.ReadAttr(buf, (type_code)0, (off_t)0, attrData, info.size);
-		   				//printf("read=%lu/%lu ", read, info.size);
-		   				count++;
-		   				if (count > 2)
-		   					break;
-		   			} else {
-		   				//printf("toobig!=%lu ", info.size);
-		   			}
+		/*node.RewindAttrs();
+		char attrName[B_ATTR_NAME_LENGTH];
+		printf("%s [ ", entryRef.name);
+		uint32 totalSize = 0;
+		while (node.GetNextAttrName(attrName) == B_OK) {
+   			printf("%s ", attrName);
+   			attr_info info;
+   			if (node.GetAttrInfo(attrName, &info) == B_OK) {
+   				// read all attributes
+   				char attrData[2048];
+   				if (info.size < 2048) {
+	   				ssize_t read = node.ReadAttr(attrName, (type_code)0, (off_t)0, attrData, info.size);
+	   				printf("%lu/%lu ", read, info.size);
+	   				totalSize += info.size;
 	   			} else {
-		   			//printf("noattrinfo '%s' ", strerror(err3));
-		   		}
-			}
-			//printf("]\n");*/
+	   				printf("toobig!=%lu ", info.size);
+	   			}	   			
+   			} else {
+	   			printf("noattrinfo '%s' ", strerror(err3));
+	   		}
+		}
+		printf(" ] total %lu\n", totalSize);*/
+		
+		//node.RewindAttrs();		
+		//printf("%s [ ", entryRef.name);
+		printf("[ ");		
+		BString attribute;
+		status_t err3 = node.ReadAttrString("MAIL:subject", &attribute);
+		if (err3 == B_OK)  				
+			printf("MAIL:subject %s", attribute.String());	   				
+		else
+			printf("can't read MAIL:subject attribute", strerror(err3));
+
+		printf(" ]\n");
+		
+		
 
 	}
 }
@@ -373,7 +386,7 @@ HighLevelQuery::Perform()
 		count++;
 	}*/
 
-	BDirectory directory("/boot/home/Desktop/tracker2test");// "/system/apps");//  /Data2/mail/Haiku-bugs
+	BDirectory directory("/Data2/mail/Haiku-bugs");//"/boot/home/Desktop/tracker2test");// "/system/apps");//  /Data2/mail/Haiku-bugs
 	status_t error = directory.InitCheck();
 
 	if (error != B_OK)
@@ -393,8 +406,8 @@ HighLevelQuery::Perform()
 	node_ref ref;
 	directory.GetNodeRef(&ref);
 	status_t status = watch_node(&ref, B_WATCH_ALL, this);
-	printf("Watching directory, status=%s\n", strerror(status));
+	printf("HighLevelQuery Watching directory, status=%s\n", strerror(status));
 
 	bigtime_t deltaTime = system_time() - startTime;
-	printf("FOUND %ld entries, time %llims (%fms/kEntry)\n", count, deltaTime / 1000, (float)deltaTime / (float)count);
+	printf("HighLevelQuery added %ld entries, time %llims (%fms/kEntry)\n", count, deltaTime / 1000, (float)deltaTime / (float)count);
 }
