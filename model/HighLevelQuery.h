@@ -35,8 +35,13 @@ public:
 	uint32			rank;		// if we asked for sorted results
 	BRect			frame;		// or manual position (any size)
 	
+	// caching sort criterion, could be a union
+	BString			stringAttribute;
+	uint32			int32Attribute;
+	
 	bool operator<(const HighLevelQueryResult& other) const {
-		return 	strcmp(entryRef.name, other.entryRef.name) < 0;
+		//return 	strcmp(entryRef.name, other.entryRef.name) < 0;
+		return 	strcmp(stringAttribute, other.stringAttribute) < 0;
 	};
 };
 

@@ -136,17 +136,18 @@ HighLevelQuery::_ManageEntry(const entry_ref& entryRef)
 		
 		//printf("%s [ ", entryRef.name);
 		//printf("[ ");		
-		/*BString attribute;
-		char *attributeName = "MAIL:subject";
+		BString attribute;
+		char *attributeName = "MAIL:from";
 		status_t err3 = node.ReadAttrString(attributeName, &attribute);
 		if (err3 != B_OK)  				
-			printf("can't read attribute %s\n", attributeName);*/
+			printf("can't read attribute %s\n", attributeName);
 		
 		//attribute = entryRef.name;
 			
-		HighLevelQueryResult* result = new HighLevelQueryResult();
+		HighLevelQueryResult* result = new HighLevelQueryResult(); //todo nothrow
 		result->nodeRef = nodeRef;
 		result->entryRef = entryRef;
+		result->stringAttribute = attribute;
 		//fSortedResults.insert(StringSortedResultMap::value_type(attribute.ToLower(), nodeModel));
 
 		fResults.push_back(result);
