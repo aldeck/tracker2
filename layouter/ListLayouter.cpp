@@ -11,6 +11,8 @@
 #include "Item.h"
 #include "GenericSpatialCache.h"
 
+#include <stdio.h>
+
 
 ListLayouter::ListLayouter(ItemView* parentItemView, float verticalSpacing, uint32 layouterIndex)
 	:
@@ -29,10 +31,18 @@ ListLayouter::~ListLayouter()
 
 
 void
-ListLayouter::AddItem(Item* item, bool updateNow = false)
+ListLayouter::AddItem(Item* item, bool updateNow)
 {
 	fItems.push_back(item);
 	fSpatialCache->AddItem(item);
+}
+
+
+void
+ListLayouter::RemoveAllItems()
+{
+	printf("ListLayouter::RemoveAllItems()\n");
+	fItems.clear();
 }
 
 

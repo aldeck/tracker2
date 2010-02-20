@@ -16,6 +16,8 @@
 #include "IconCache.h"
 #include "ItemView.h"
 
+#include <stdio.h>
+
 
 FileItem::FileItem(ItemView* parentItemView, const entry_ref* ref)
 	:

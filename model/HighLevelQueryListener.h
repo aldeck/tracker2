@@ -8,16 +8,15 @@
 #ifndef _HIGH_LEVEL_QUERY_LISTENER_H
 #define _HIGH_LEVEL_QUERY_LISTENER_H
 
-struct entry_ref;
-struct node_ref;
+#include <SupportDefs.h>
+
+class HighLevelQueryResult;
 
 class HighLevelQueryListener {
 public:
 	virtual				~HighLevelQueryListener() {};
 
-	virtual	void		EntryAdded(const node_ref& nodeRef, const entry_ref& entryRef) = 0;
-	virtual	void		EntryRemoved(const node_ref& nodeRef, const entry_ref& entryRef) = 0;
-	virtual	void		EntryChanged(const node_ref& nodeRef, const entry_ref& entryRef) = 0;
+	virtual	void		HighLevelQueryEventReceived(uint32 code, /*const*/ HighLevelQueryResult* result) = 0;
 };
 
 #endif	// _HIGH_LEVEL_QUERY_LISTENER_H

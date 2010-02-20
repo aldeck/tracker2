@@ -23,6 +23,7 @@ public:
 						ListLayouter(ItemView* parentItemView, float verticalSpacing, uint32 layouterIndex);
 	virtual				~ListLayouter();
 	virtual	void		AddItem(Item* item, bool updateNow = false);
+	virtual void		RemoveAllItems();
 	virtual void		LayoutAllItems();
 	virtual SpatialCache* GetSpatialCache() const {return fSpatialCache;};
 

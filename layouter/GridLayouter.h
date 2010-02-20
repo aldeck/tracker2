@@ -21,9 +21,11 @@ class SpatialCache;
 
 class GridLayouter : public Layouter {
 public:
-						GridLayouter(ItemView* parentItemView, const BPoint& spacing, uint32 layouterIndex);
+						GridLayouter(ItemView* parentItemView,
+							const BPoint& spacing, uint32 layouterIndex);
 	virtual				~GridLayouter();
 	virtual	void		AddItem(Item* item, bool updateNow = false);
+	virtual void		RemoveAllItems();
 	virtual void		LayoutAllItems();
 	virtual SpatialCache* GetSpatialCache() const {return fSpatialCache;};
 

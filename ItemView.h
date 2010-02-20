@@ -43,11 +43,7 @@ public:
 
 	int				CurrentLayouterIndex() const;
 	
-	// HighLevelQueryListener
-	virtual	void	EntryAdded(const node_ref& nodeRef, const entry_ref& entryRef);
-	virtual	void	EntryRemoved(const node_ref& nodeRef, const entry_ref& entryRef);
-	virtual	void	EntryChanged(const node_ref& nodeRef, const entry_ref& entryRef);
-
+	virtual void	HighLevelQueryEventReceived(uint32 code,/*const*/ HighLevelQueryResult* result);
 
 protected:
 	void			_MouseDrag(BPoint point);

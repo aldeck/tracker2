@@ -14,7 +14,9 @@
 #include <Path.h>
 #include <String.h>
 
+#include <algorithm>
 #include <errno.h>
+#include <stdio.h>
 #include <sys/resource.h>
 #include <sys/stat.h>
 
@@ -36,7 +38,8 @@ HighLevelQuery::HighLevelQuery()
 		printf("error bumping node monitor limit err=%s\n", strerror(errno));
 	else
 		printf("ok bumped node monitor to 16000\n");
-
+		
+	fInvertSortToggle = false;
 }
 
 
@@ -58,7 +61,18 @@ HighLevelQuery::_ManageEntry(const entry_ref& entryRef)
 		return;
 	} else {
 		node_ref nodeRef;
-   		node.GetNodeRef(&nodeRef);
+   		//node.GetNodeRef(&nodeRef);
+   			// instead get node_ref directly via stat below, since we will probably need later it anyway
+   		
+		struct stat nodeStat;		
+		status_t err4 = node.GetStat(&nodeStat);
+		if (err4 == B_OK) {
+			nodeRef.device  = nodeStat.st_dev;
+			nodeRef.node = nodeStat.st_ino;
+		} else
+			printf("error cant get stat for node err=%s\n", strerror(err4));
+		
+   		
 		// debug check
 		EntryMap::iterator it = fEntries.find(nodeRef);
 		if (it != fEntries.end()) {
@@ -69,8 +83,10 @@ HighLevelQuery::_ManageEntry(const entry_ref& entryRef)
 		fEntries.insert(EntryMap::value_type(nodeRef, entryRef));
 
 		// needed for the "query entry rename" problem
-		status_t err = watch_node(&nodeRef,
-			B_WATCH_NAME | B_WATCH_STAT | B_WATCH_ATTR, this);
+		// attention on recoit deux notifs sur un rename dans un directory, probablement
+		// le watch sur le fichier et sur le repertoire
+		uint32 flags = /*B_WATCH_NAME |*/ B_WATCH_STAT | B_WATCH_ATTR;
+		status_t err = watch_node(&nodeRef, flags, this);
 		fEntryCount++;
 		if (sVerbose || err != B_OK) {
 			BPath path(&entryRef);
@@ -78,8 +94,6 @@ HighLevelQuery::_ManageEntry(const entry_ref& entryRef)
 				nodeRef.node, path.Path(), strerror(err));
 		}
 		
-		//test disabled _NotifyEntryAdded(nodeRef, entryRef);
-
 		// test, read some attributes
 		
 		//node.RewindAttrs();
@@ -110,13 +124,22 @@ HighLevelQuery::_ManageEntry(const entry_ref& entryRef)
 		
 		//printf("%s [ ", entryRef.name);
 		//printf("[ ");		
-		/*BString attribute;
-		status_t err3 = node.ReadAttrString("MAIL:subject", &attribute);
-		if (err3 == B_OK)  				
-			foo++;//printf("MAIL:subject %s", attribute.String());	   				
-		else
-			foo--;//printf("can't read MAIL:subject attribute, %s", strerror(err3));*/
+		BString attribute;
+		char *attributeName = "MAIL:subject";
+		status_t err3 = node.ReadAttrString(attributeName, &attribute);
+		if (err3 != B_OK)  				
+			printf("can't read attribute %s\n", attributeName);
+		
+		//attribute = entryRef.name;
+			
+		HighLevelQueryResult result;
+		result.nodeRef = nodeRef;
+		result.entryRef = entryRef;
+		//fSortedResults.insert(StringSortedResultMap::value_type(attribute.ToLower(), nodeModel));
 
+		fResults.push_back(result);
+		//_NotifyEvent(HLQ_RESULT_ADDED, &result);
+		
 		//printf(" ]\n");	
 		
 		// test, read icon
@@ -141,17 +164,7 @@ HighLevelQuery::_ManageEntry(const entry_ref& entryRef)
 		// savoir ce qu'on doit afficher en premier
 		
 		// dans les deux cas c'est une information d'affichage
-		
-		
-		// test, read stat
 	
-		// attention dans stat on relirait pas encore de_t et ino_t aka node_ref? 
-		struct stat statData;
-		status_t err4 = node.GetStat(&statData);
-		if (err4 == B_OK)
-			foo++;//printf("node.GetStat ok, filesize=%llu\n", statData.st_size);
-		else
-			foo--;//printf("can't read stat!\n");
 	}
 }
 
@@ -171,7 +184,7 @@ HighLevelQuery::_UnmanageEntry(const node_ref& nodeRef)
 				nodeRef.node, path.Path(), strerror(err));
 		}
 		
-		_NotifyEntryRemoved(nodeRef, (*it).second);		
+		//_NotifyEntryRemoved(nodeRef, (*it).second);		
 		fEntries.erase(it);
 				
 	} else
@@ -363,36 +376,45 @@ HighLevelQuery::AddListener(HighLevelQueryListener* listener)
 }
 
 
-
 void
-HighLevelQuery::_NotifyEntryAdded(const node_ref& nodeRef, const entry_ref& entryRef)
+HighLevelQuery::_NotifyEvent(uint32 code, /*const*/ HighLevelQueryResult* result)
 {
 	ListenerList::iterator it = fListeners.begin();
 	for(; it != fListeners.end(); it++)
-		(*it)->EntryAdded(nodeRef, entryRef);
+		(*it)->HighLevelQueryEventReceived(code, result);
+}
+
+
+// test
+bool _BiggerThan(const HighLevelQueryResult& a, const HighLevelQueryResult& b)
+{
+	return !(a < b);
+}
+
+bool _LesserThan(const HighLevelQueryResult& a, const HighLevelQueryResult& b)
+{
+	return a < b;
 }
 
 
 void
-HighLevelQuery::_NotifyEntryRemoved(const node_ref& nodeRef, const entry_ref& entryRef)
+HighLevelQuery::InvertSort()
 {
-	ListenerList::iterator it = fListeners.begin();
-	for(; it != fListeners.end(); it++)
-		(*it)->EntryRemoved(nodeRef, entryRef);
+	bigtime_t sortStartTime = system_time();	
+	if (fInvertSortToggle) {
+		std::sort(fResults.begin(), fResults.end(), _LesserThan);		
+	} else {
+		std::sort(fResults.begin(), fResults.end(), _BiggerThan);
+	}
+	fInvertSortToggle = !fInvertSortToggle;
+	
+	bigtime_t sortTime = system_time() - sortStartTime;
+	_NotifyEvent(HLQ_FULL_UPDATE, NULL);
 }
 
 
 void
-HighLevelQuery::_NotifyEntryChanged(const node_ref& nodeRef, const entry_ref& entryRef)
-{
-	ListenerList::iterator it = fListeners.begin();
-	for(; it != fListeners.end(); it++)
-		(*it)->EntryChanged(nodeRef, entryRef);
-}
-
-
-void
-HighLevelQuery::Perform()
+HighLevelQuery::DoIt()
 {
 	/*status_t status = query.Fetch();
 	if (status != B_OK) {
@@ -401,7 +423,7 @@ HighLevelQuery::Perform()
 	}*/
 
 	int32 count = 0;
-	bigtime_t startTime = system_time();
+	bigtime_t queryStartTime = system_time();
 
 	/*BEntry entry;
 	BPath path;
@@ -443,7 +465,26 @@ HighLevelQuery::Perform()
 	directory.GetNodeRef(&ref);
 	status_t status = watch_node(&ref, B_WATCH_ALL, this);
 	printf("HighLevelQuery Watching directory, status=%s\n", strerror(status));
-
-	bigtime_t deltaTime = system_time() - startTime;
-	printf("HighLevelQuery added %ld entries, time %llims (%fms/kEntry)\n", count, deltaTime / 1000, (float)deltaTime / (float)count);
+	
+	bigtime_t queryTime = system_time() - queryStartTime;
+	
+	_NotifyEvent(HLQ_FULL_UPDATE, NULL);
+	
+	/*StringSortedResultMap::iterator it = fSortedResults.begin();
+	for (; it != fSortedResults.end(); it++) {
+		printf("sorted: %s\n", (*it).second.entryRef.name);
+	}*/
+	
+	bigtime_t sortStartTime = system_time();	
+	std::sort(fResults.begin(), fResults.end());
+	bigtime_t sortTime = system_time() - sortStartTime;
+	
+	/*ResultVector::iterator it = Results().begin();
+	for (; it != Results().end(); it++) {
+		printf("sorted: %s\n", (*it).entryRef.name);
+	}*/
+	
+	printf("HighLevelQuery added %ld entries, queryTime %llims (%fms/kEntry),"
+		" sortTime %llims\n", count, queryTime / 1000,
+		(float)queryTime / (float)count, sortTime / 1000);
 }

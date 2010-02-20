@@ -13,6 +13,8 @@
 #include <MimeType.h>
 #include <NodeInfo.h>
 
+#include <stdio.h>
+
 
 
 IconCache* IconCache::sInstance = NULL;

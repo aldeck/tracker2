@@ -24,7 +24,7 @@ public:
 	virtual	void		AddItem(Item* item) = 0;
 	virtual	void		RemoveItem(Item* item) = 0;
 	virtual	void		RemoveAllItems() = 0;
-	virtual void		_UpdateAllItems() { printf("hey\n");}; // test
+	virtual void		_UpdateAllItems() {}; // test
 
 	virtual	Item*		FindUpperLeftItem() const = 0;
 	virtual	ItemSet		FindIntersectingItems(const BPoint& point) const = 0;

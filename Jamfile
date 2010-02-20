@@ -35,6 +35,6 @@ Application Tracker2 :
 	# model
 	HighLevelQuery.cpp
 
-	: be
+	: be $(TARGET_LIBSTDC++)
 	: Tracker2.rdef
 ;

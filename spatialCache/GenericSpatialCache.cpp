@@ -11,6 +11,8 @@
 #include "Item.h"
 #include "ItemView.h"
 
+#include <stdio.h>
+
 
 GenericSpatialCache::GenericSpatialCache(ItemView* parentItemView)
 	:

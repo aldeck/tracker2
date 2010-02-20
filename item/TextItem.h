@@ -28,6 +28,9 @@ public:
 	virtual bool	Less(const Item* other) const { return false; };
 
 protected:
+	void			_Load();
+	bool			fLoaded;
+
 	BString			fText;
 	BRect			fCachedBounds;
 };

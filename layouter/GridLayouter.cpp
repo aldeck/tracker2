@@ -12,8 +12,11 @@
 //#include "ReferenceSpatialCache.h"
 #include "GenericSpatialCache.h"
 
+#include <stdio.h>
 
-GridLayouter::GridLayouter(ItemView* parentItemView, const BPoint& spacing, uint32 layouterIndex)
+
+GridLayouter::GridLayouter(ItemView* parentItemView, const BPoint& spacing,
+	uint32 layouterIndex)
 	:
 	fLayouterIndex(layouterIndex),
 	fSpacing(spacing),
@@ -29,10 +32,19 @@ GridLayouter::~GridLayouter()
 
 
 void
-GridLayouter::AddItem(Item* item, bool updateNow = false)
+GridLayouter::AddItem(Item* item, bool updateNow)
 {
 	fItems.push_back(item);
 	fSpatialCache->AddItem(item);
+}
+
+
+void
+GridLayouter::RemoveAllItems()
+{
+	printf("GridLayouter::RemoveAllItems()\n");
+	fSpatialCache->RemoveAllItems();
+	fItems.clear();
 }
 
 

@@ -22,7 +22,7 @@ public:
 	//virtual	void		AddPoses(PoseList* list, bool updateNow = false) = 0;
 	//virtual	void		RemovePose(Pose* pose) = 0;
 	//virtual	void		RemovePoses(PoseList* list) = 0;
-	//virtual	void		RemoveAllPoses() = 0;
+	virtual	void		RemoveAllItems() = 0;
 
 	virtual void		LayoutAllItems() = 0;
 

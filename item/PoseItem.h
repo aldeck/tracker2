@@ -33,6 +33,7 @@ public:
 protected:
 	IconItem*		fIconItem;
 	TextItem*		fNameItem;
+	//TextItem*		fTypeItem;
 };
 
 #endif /* _POSE_ITEM_H */

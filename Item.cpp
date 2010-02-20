@@ -10,6 +10,8 @@
 
 #include "ItemView.h"
 
+#include <stdio.h>
+
 
 Item::Item(ItemView* parentItemView)
 	:

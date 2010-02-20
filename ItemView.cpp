@@ -39,7 +39,7 @@ ItemView::ItemView(BRect frame)
 	fDebugDrawing(false)
 {
 	fLayouters.push_back(new GridLayouter(this, BPoint(50, 50), 0));
-	fLayouters.push_back(new ListLayouter(this, 50, 1));
+	//fLayouters.push_back(new ListLayouter(this, 50, 1));
 }
 
 
@@ -85,7 +85,7 @@ void ItemView::_Test()
 	}
 	printf("Total added %lu \n", count);*/
 	
-	fHighLevelQuery.Perform();
+	fHighLevelQuery.DoIt();
 	
 	for (uint32 j = 0; j < fLayouters.size(); j++)		// faire un callback pose added
 		fLayouters[j]->LayoutAllItems();
@@ -95,23 +95,32 @@ void ItemView::_Test()
 
 
 void
-ItemView::EntryAdded(const node_ref& nodeRef, const entry_ref& entryRef)
+ItemView::HighLevelQueryEventReceived(uint32 code, /*const*/ HighLevelQueryResult* result)
 {
 
-	Item* item = new PoseItem(this, entryRef);
-	AddItem(item);
-}
-
-
-void
-ItemView::EntryRemoved(const node_ref& nodeRef, const entry_ref& entryRef)
-{
-}
-
-
-void
-ItemView::EntryChanged(const node_ref& nodeRef, const entry_ref& entryRef)
-{
+	switch (code) {
+		case HighLevelQuery::HLQ_RESULT_ADDED:
+		{
+			if (result != NULL) {
+				Item* item = new PoseItem(this, result->entryRef);
+				AddItem(item);
+			}
+			break;
+		}
+		case HighLevelQuery::HLQ_FULL_UPDATE:
+		{
+			printf("ItemView::HighLevelQueryEventReceived HLQ_FULL_UPDATE event\n");
+			HighLevelQuery::ResultVector::iterator it = fHighLevelQuery.Results().begin();
+			for (; it != fHighLevelQuery.Results().end(); it++) {
+				//printf("sorted: %s\n", (*it).entryRef.name);
+				Item* item = new PoseItem(this, (*it).entryRef);
+				AddItem(item);
+			}			
+			break;
+		}
+		default:
+			printf("ItemView::HighLevelQueryEventReceived unhandled event\n");
+	}
 }
 
 
@@ -212,7 +221,6 @@ ItemView::Extent() const
 void
 ItemView::Draw(BRect updateRect)
 {
-	
 	//ItemList& res = fItems;
 	//ItemList::iterator it = res.begin();
 	ItemSet res = fLayouters[fCurrentLayouterIndex]->GetSpatialCache()->FindIntersectingItems(updateRect);
@@ -401,7 +409,22 @@ ItemView::KeyUp(const char* bytes, int32 numBytes)
 			printf("Previous layouter, %lu\n", fCurrentLayouterIndex);
 			Invalidate();
 			break;
-
+		
+		case B_UP_ARROW:
+		{
+			printf("Invert sort\n");			
+			fLayouters[fCurrentLayouterIndex]->RemoveAllItems();
+			
+			ItemList::iterator it = fItems.begin();
+			for (; it != fItems.end(); it++) {
+				delete (*it);
+			}
+			
+			fHighLevelQuery.InvertSort();
+			fLayouters[fCurrentLayouterIndex]->LayoutAllItems();
+			Invalidate();
+			break;			
+		}
 		case 'd':
 			fDebugDrawing = !fDebugDrawing;
 			Invalidate();

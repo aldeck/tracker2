@@ -13,23 +13,31 @@
 
 TextItem::TextItem(ItemView* parentItemView, const BString& text)
 	:
-	Item(parentItemView),
+	Item(parentItemView),	
+	fLoaded(false),
 	fText(text)
 {
-	BString truncatedString;
-	if (truncate) {
-		truncatedString = fText;
-		float width = 128;//rect.Width() - 2 * kTextMargin + 2
-		parentItemView->TruncateString(&truncatedString, B_TRUNCATE_END,
-			width);
-		fText = truncatedString.String();
-	}
-	fCachedBounds.Set(0, 0, 8 + fParentItemView->StringWidth(fText), 16);
+	fCachedBounds.Set(0, 0, 8 + fParentItemView->StringWidth(fText), 16);	
 }
 
 
 TextItem::~TextItem()
 {
+}
+
+
+void
+TextItem::_Load()
+{
+	/*if (!fLoaded) {	
+		BString truncatedString;	
+		truncatedString = fText;
+		float width = 128;//rect.Width() - 2 * kTextMargin + 2
+		parentItemView->TruncateString(&truncatedString, B_TRUNCATE_END,
+			width);
+		fText = truncatedString.String(); // uhu?	
+		fCachedBounds.Set(0, 0, 8 + fParentItemView->StringWidth(fText), 16);
+	}*/
 }
 
 
