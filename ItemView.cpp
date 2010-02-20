@@ -113,7 +113,7 @@ ItemView::HighLevelQueryEventReceived(uint32 code, /*const*/ HighLevelQueryResul
 			HighLevelQuery::ResultVector::iterator it = fHighLevelQuery.Results().begin();
 			for (; it != fHighLevelQuery.Results().end(); it++) {
 				//printf("rank %lu: %s\n", (*it).rank, (*it).entryRef.name);
-				Item* item = new PoseItem(this, (*it).entryRef);
+				Item* item = new PoseItem(this, (*it)->entryRef);
 				AddItem(item);
 			}			
 			break;

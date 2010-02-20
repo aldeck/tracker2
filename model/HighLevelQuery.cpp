@@ -24,14 +24,14 @@
 static bool sVerbose = false;
 
 // test
-bool _BiggerThan(const HighLevelQueryResult& a, const HighLevelQueryResult& b)
+bool _BiggerThan(const HighLevelQueryResult* a, const HighLevelQueryResult* b)
 {
-	return !(a < b);
+	return !(*a < *b);
 }
 
-bool _LesserThan(const HighLevelQueryResult& a, const HighLevelQueryResult& b)
+bool _LesserThan(const HighLevelQueryResult* a, const HighLevelQueryResult* b)
 {
-	return a < b;
+	return *a < *b;
 }
 
 
@@ -136,17 +136,17 @@ HighLevelQuery::_ManageEntry(const entry_ref& entryRef)
 		
 		//printf("%s [ ", entryRef.name);
 		//printf("[ ");		
-		BString attribute;
+		/*BString attribute;
 		char *attributeName = "MAIL:subject";
 		status_t err3 = node.ReadAttrString(attributeName, &attribute);
 		if (err3 != B_OK)  				
-			printf("can't read attribute %s\n", attributeName);
+			printf("can't read attribute %s\n", attributeName);*/
 		
 		//attribute = entryRef.name;
 			
-		HighLevelQueryResult result;
-		result.nodeRef = nodeRef;
-		result.entryRef = entryRef;
+		HighLevelQueryResult* result = new HighLevelQueryResult();
+		result->nodeRef = nodeRef;
+		result->entryRef = entryRef;
 		//fSortedResults.insert(StringSortedResultMap::value_type(attribute.ToLower(), nodeModel));
 
 		fResults.push_back(result);
@@ -419,10 +419,10 @@ HighLevelQuery::_Sort()		// full sort and rank
 	bigtime_t rankStartTime = system_time();
 	ResultVector::iterator it = fResults.begin();
 	for (uint32 i = 0; i < fResults.size(); ++i) {
-		fResults[i].rank = i;
-		if (fResults[i].lastRank != i) {
+		fResults[i]->rank = i;
+		if (fResults[i]->lastRank != i) {
 			//_NotifyEvent(HLQ_RANK_CHANGED, &fResults[i]);
-			fResults[i].lastRank = i;
+			fResults[i]->lastRank = i;
 		}
 	}
 	bigtime_t rankTime = system_time() - rankStartTime;

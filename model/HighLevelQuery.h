@@ -64,11 +64,9 @@ public:
 			
 			
 			
-			typedef std::vector<HighLevelQueryResult> ResultVector;
+			typedef std::vector<HighLevelQueryResult*> ResultVector;
 			
-	/*const*/	ResultVector&	Results() { return fResults; };
-	
-			
+	/*const*/	ResultVector&	Results() { return fResults; };			
 			
 
 private:
@@ -100,7 +98,7 @@ private:
 			EntryMap			fEntries;			
 			
 			ResultVector		fResults;
-			bool (*fSortFunction) (const HighLevelQueryResult&, const HighLevelQueryResult&);		
+			bool (*fSortFunction) (const HighLevelQueryResult*, const HighLevelQueryResult*);		
 			
 			typedef std::vector<HighLevelQueryListener*> ListenerList;
 			ListenerList		fListeners;
