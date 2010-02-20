@@ -23,6 +23,17 @@
 
 static bool sVerbose = false;
 
+// test
+bool _BiggerThan(const HighLevelQueryResult& a, const HighLevelQueryResult& b)
+{
+	return !(a < b);
+}
+
+bool _LesserThan(const HighLevelQueryResult& a, const HighLevelQueryResult& b)
+{
+	return a < b;
+}
+
 
 HighLevelQuery::HighLevelQuery()
 {
@@ -40,6 +51,7 @@ HighLevelQuery::HighLevelQuery()
 		printf("ok bumped node monitor to 16000\n");
 		
 	fInvertSortToggle = false;
+	fSortFunction = _LesserThan;
 }
 
 
@@ -385,30 +397,38 @@ HighLevelQuery::_NotifyEvent(uint32 code, /*const*/ HighLevelQueryResult* result
 }
 
 
-// test
-bool _BiggerThan(const HighLevelQueryResult& a, const HighLevelQueryResult& b)
+void
+HighLevelQuery::InvertSort()		// test
 {
-	return !(a < b);
-}
-
-bool _LesserThan(const HighLevelQueryResult& a, const HighLevelQueryResult& b)
-{
-	return a < b;
+	if (fInvertSortToggle)
+		fSortFunction = _LesserThan;	
+	else
+		fSortFunction = _BiggerThan;
+	fInvertSortToggle = !fInvertSortToggle;	
+	_Sort();
 }
 
 
 void
-HighLevelQuery::InvertSort()
+HighLevelQuery::_Sort()		// full sort and rank
 {
 	bigtime_t sortStartTime = system_time();	
-	if (fInvertSortToggle) {
-		std::sort(fResults.begin(), fResults.end(), _LesserThan);		
-	} else {
-		std::sort(fResults.begin(), fResults.end(), _BiggerThan);
-	}
-	fInvertSortToggle = !fInvertSortToggle;
-	
+	std::sort(fResults.begin(), fResults.end(), fSortFunction);
 	bigtime_t sortTime = system_time() - sortStartTime;
+	
+	bigtime_t rankStartTime = system_time();
+	ResultVector::iterator it = fResults.begin();
+	for (uint32 i = 0; i < fResults.size(); ++i) {
+		fResults[i].rank = i;
+		if (fResults[i].lastRank != i) {
+			//_NotifyEvent(HLQ_RANK_CHANGED, &fResults[i]);
+			fResults[i].lastRank = i;
+		}
+	}
+	bigtime_t rankTime = system_time() - rankStartTime;
+	
+	printf("HighLevelQuery sort %lliµs rank %lliµs\n", sortTime, rankTime);
+
 	_NotifyEvent(HLQ_FULL_UPDATE, NULL);
 }
 
@@ -416,16 +436,17 @@ HighLevelQuery::InvertSort()
 void
 HighLevelQuery::DoIt()
 {
-	/*status_t status = query.Fetch();
-	if (status != B_OK) {
-		fprintf(stderr, "%s: bad query expression\n", kProgramName);
-		return;
-	}*/
-
 	int32 count = 0;
 	bigtime_t queryStartTime = system_time();
 
-	/*BEntry entry;
+	/*
+	status_t status = query.Fetch();
+	if (status != B_OK) {
+		fprintf(stderr, "%s: bad query expression\n", kProgramName);
+		return;
+	}
+	
+	BEntry entry;
 	BPath path;
 	while (query.GetNextEntry(&entry) == B_OK) {
 		if (sFilesOnly && !entry.IsFile())
@@ -459,7 +480,6 @@ HighLevelQuery::DoIt()
 
 		count++;
 	}
-	printf("foo %i\n", foo);
 
 	node_ref ref;
 	directory.GetNodeRef(&ref);
@@ -467,24 +487,8 @@ HighLevelQuery::DoIt()
 	printf("HighLevelQuery Watching directory, status=%s\n", strerror(status));
 	
 	bigtime_t queryTime = system_time() - queryStartTime;
+	printf("HighLevelQuery added %ld entries, fs %llims (%fms/kEntry)\n",
+		count, queryTime / 1000, (float)queryTime / (float)count);
 	
-	_NotifyEvent(HLQ_FULL_UPDATE, NULL);
-	
-	/*StringSortedResultMap::iterator it = fSortedResults.begin();
-	for (; it != fSortedResults.end(); it++) {
-		printf("sorted: %s\n", (*it).second.entryRef.name);
-	}*/
-	
-	bigtime_t sortStartTime = system_time();	
-	std::sort(fResults.begin(), fResults.end());
-	bigtime_t sortTime = system_time() - sortStartTime;
-	
-	/*ResultVector::iterator it = Results().begin();
-	for (; it != Results().end(); it++) {
-		printf("sorted: %s\n", (*it).entryRef.name);
-	}*/
-	
-	printf("HighLevelQuery added %ld entries, queryTime %llims (%fms/kEntry),"
-		" sortTime %llims\n", count, queryTime / 1000,
-		(float)queryTime / (float)count, sortTime / 1000);
+	_Sort();			
 }

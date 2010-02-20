@@ -31,6 +31,7 @@ public:
 	entry_ref		entryRef;	// we always want that
 	
 	// visibility info
+	uint32			lastRank;
 	uint32			rank;		// if we asked for sorted results
 	BRect			frame;		// or manual position (any size)
 	
@@ -85,6 +86,8 @@ private:
 			void				_UpdateEntry(const node_ref& nodeRef,
 									const entry_ref& entry);
 									
+			void				_Sort();
+									
 			struct	lesserThanRefNode {
 				bool operator()(const node_ref & a, const node_ref & b)
 				{
@@ -93,36 +96,11 @@ private:
 				}
 			};
 			
-			struct	lesserThanResult {
-				bool operator()(const HighLevelQueryResult& a, const HighLevelQueryResult& b)
-				{
-					return a < b;
-				}
-			};
-			
-			/*struct	biggerThanResult {
-				bool operator()(const HighLevelQueryResult& a, const HighLevelQueryResult& b)
-				{
-					return !(a < b);
-				}
-			};*/
-			
-			bool biggerThanResult(const HighLevelQueryResult& a, const HighLevelQueryResult& b)
-				{
-					return !(a < b);
-				}
-			
-			/*struct	lesserThanBString {
-				bool operator()(const BString& a, const BString& b)
-				{
-					return NaturalCompare(a, b);
-				}
-			};*/
-
 			typedef std::map<node_ref, entry_ref, lesserThanRefNode> EntryMap;
 			EntryMap			fEntries;			
 			
-			ResultVector		fResults;			
+			ResultVector		fResults;
+			bool (*fSortFunction) (const HighLevelQueryResult&, const HighLevelQueryResult&);		
 			
 			typedef std::vector<HighLevelQueryListener*> ListenerList;
 			ListenerList		fListeners;

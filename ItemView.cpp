@@ -112,7 +112,7 @@ ItemView::HighLevelQueryEventReceived(uint32 code, /*const*/ HighLevelQueryResul
 			printf("ItemView::HighLevelQueryEventReceived HLQ_FULL_UPDATE event\n");
 			HighLevelQuery::ResultVector::iterator it = fHighLevelQuery.Results().begin();
 			for (; it != fHighLevelQuery.Results().end(); it++) {
-				//printf("sorted: %s\n", (*it).entryRef.name);
+				//printf("rank %lu: %s\n", (*it).rank, (*it).entryRef.name);
 				Item* item = new PoseItem(this, (*it).entryRef);
 				AddItem(item);
 			}			
