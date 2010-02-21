@@ -5,9 +5,8 @@
  * Authors:
  * 		Alexandre Deckner <alex@zappotek.com>
  */
-#ifndef _ITEM_LIST_H
-#define _ITEM_LIST_H
-
+#ifndef _ITEM_CONTAINERS_H
+#define _ITEM_CONTAINERS_H
 
 #include <vector>
 #include <set>
@@ -15,6 +14,7 @@
 class Item;
 
 typedef std::vector<Item*> ItemList;
+typedef std::vector<Item*> ItemVector;
 typedef std::set<Item*> ItemSet;
 
-#endif /* _ITEM_LIST_H */
+#endif // _ITEM_CONTAINERS_H

@@ -50,10 +50,10 @@ GenericSpatialCache::AddItem(Item* item)
 {
 	//bigtime_t startTime = system_time();
 	std::pair<ItemSet::iterator, bool> res = fItems.insert(item);
-	/*if (!res.second) {
+	if (!res.second) {
 		printf("GenericSpatialCache::AddItem already added %p\n", item);
 		return;	
-	}*/
+	}
 	
 	BRect frame(item->Frame());
 
@@ -86,11 +86,11 @@ void
 GenericSpatialCache::RemoveItem(Item* item)
 {
 	//bigtime_t startTime = system_time();
-	//size_t erasedCount = fItems.erase(item);
-	/*if (erasedCount == 0) {
+	size_t erasedCount = fItems.erase(item);
+	if (erasedCount == 0) {
 		printf("GenericSpatialCache::RemoveItem, already removed or absent %p\n", item);
 		return;	
-	}*/
+	}
 	
 	BRect frame(item->Frame());
 	

@@ -15,6 +15,7 @@
 #include <String.h>
 
 #include <algorithm>
+#include <assert.h>
 #include <errno.h>
 #include <stdio.h>
 #include <sys/resource.h>
@@ -23,14 +24,18 @@
 
 static bool sVerbose = false;
 
+//#define NDEBUG
+
 // test
 bool _BiggerThan(const HighLevelQueryResult* a, const HighLevelQueryResult* b)
 {
+	assert(a != NULL && b != NULL);
 	return !(*a < *b);
 }
 
 bool _LesserThan(const HighLevelQueryResult* a, const HighLevelQueryResult* b)
 {
+	assert(a != NULL && b != NULL);
 	return *a < *b;
 }
 
@@ -137,12 +142,12 @@ HighLevelQuery::_ManageEntry(const entry_ref& entryRef)
 		//printf("%s [ ", entryRef.name);
 		//printf("[ ");		
 		BString attribute;
-		char *attributeName = "MAIL:from";
+		/*char *attributeName = "MAIL:from";
 		status_t err3 = node.ReadAttrString(attributeName, &attribute);
 		if (err3 != B_OK)  				
-			printf("can't read attribute %s\n", attributeName);
+			printf("can't read attribute %s\n", attributeName);*/
 		
-		//attribute = entryRef.name;
+		attribute = entryRef.name;
 			
 		HighLevelQueryResult* result = new HighLevelQueryResult(); //todo nothrow
 		result->nodeRef = nodeRef;
@@ -465,7 +470,8 @@ HighLevelQuery::DoIt()
 		count++;
 	}*/
 
-	BDirectory directory("/Data2/mail/Haiku-bugs");// /boot/home/Desktop/tracker2test   /system/apps   /Data2/mail/Haiku-bugs
+	BDirectory directory("/Data2/mail/Haiku-bugs");
+	// /boot/home/Desktop/tracker2test   /system/apps   /Data2/mail/Haiku-bugs
 	status_t error = directory.InitCheck();
 
 	if (error != B_OK)

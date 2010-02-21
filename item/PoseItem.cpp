@@ -34,6 +34,8 @@ PoseItem::PoseItem(ItemView* parentItemView, const entry_ref& ref)
 
 PoseItem::~PoseItem()
 {
+	delete fIconItem;
+	delete fNameItem;
 }
 
 

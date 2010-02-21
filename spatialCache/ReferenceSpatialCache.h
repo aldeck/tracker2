@@ -9,7 +9,7 @@
 #define _REFERENCE_SPATIAL_CACHE_H
 
 #include "SpatialCache.h"
-#include "ItemList.h"
+#include "ItemContainers.h"
 
 
 class Item;

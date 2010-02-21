@@ -76,8 +76,8 @@ IconItem::_Load()
 			
 		fBitmap = IconCache::GetInstance()->GetIconFromType(type);*/
 		
-		//fBitmap = IconCache::GetInstance()->GetIcon(fEntryRef);		//use BIconutils
-		fBitmap = IconCache::GetInstance()->GetIconFromType("application/octet-stream");
+		fBitmap = IconCache::GetInstance()->GetIcon(fEntryRef);		//use BIconutils
+		//fBitmap = IconCache::GetInstance()->GetIconFromType("application/octet-stream");
 	}
 }
 

@@ -15,8 +15,8 @@
 #include <stdio.h>
 
 
-GridLayouter::GridLayouter(ItemView* parentItemView, const BPoint& spacing,
-	uint32 layouterIndex)
+GridLayouter::GridLayouter(uint32 layouterIndex, ItemView* parentItemView,
+	const BPoint& spacing)
 	:
 	fLayouterIndex(layouterIndex),
 	fSpacing(spacing),
@@ -24,6 +24,7 @@ GridLayouter::GridLayouter(ItemView* parentItemView, const BPoint& spacing,
 {
 	fSpatialCache = new GenericSpatialCache(parentItemView);
 }
+
 
 GridLayouter::~GridLayouter()
 {
@@ -51,6 +52,7 @@ GridLayouter::RemoveAllItems()
 void
 GridLayouter::LayoutAllItems()
 {
+	printf("GridLayouter::LayoutAllItems()\n");
 	BPoint pin(20, 20);
 	ItemList::iterator it = fItems.begin();
 	for (; it != fItems.end(); it++) {

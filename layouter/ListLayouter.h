@@ -12,7 +12,7 @@
 #include <Point.h>
 
 #include "Layouter.h"
-#include "ItemList.h"
+#include "ItemContainers.h"
 
 
 class Item;
@@ -20,7 +20,7 @@ class ItemView;
 
 class ListLayouter : public Layouter {
 public:
-						ListLayouter(ItemView* parentItemView, float verticalSpacing, uint32 layouterIndex);
+						ListLayouter(uint32 layouterIndex, ItemView* parentItemView, float verticalSpacing);
 	virtual				~ListLayouter();
 	virtual	void		AddItem(Item* item, bool updateNow = false);
 	virtual void		RemoveAllItems();

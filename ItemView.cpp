@@ -20,10 +20,7 @@
 #include <Window.h>
 
 #include "Item.h"
-//#include "IconItem.h"
-//#include "FileItem.h"
 #include "PoseItem.h"
-//#include "TextItem.h"
 #include "GridLayouter.h"
 #include "ListLayouter.h"
 #include "SpatialCache.h"
@@ -38,57 +35,15 @@ ItemView::ItemView(BRect frame)
 	fDraggedItem(NULL),
 	fDebugDrawing(false)
 {
-	fLayouters.push_back(new GridLayouter(this, BPoint(50, 50), 0));
-	//fLayouters.push_back(new ListLayouter(this, 50, 1));
-}
-
-
-bool less_Item(const Item& i1, const Item& i2)
-{
-   return i1.Less(&i2);
+	
+	fLayouters.push_back(new ListLayouter(0, this, 50));
+	//fLayouters.push_back(new GridLayouter(1, this, BPoint(50, 50)));
 }
 
 
 void ItemView::_Test()
 {
-	/*for (uint32 i = 0; i < 1048; i++) {
-		Item* item = new IconItem(this);
-		fItems.push_back(item);
-		for (uint32 j = 0; j < fLayouters.size(); j++)		// faire un callback pose added
-			fLayouters[j]->AddItem(item);
-	}*/
-	
-	/*uint32 count = 0;
-
-	for (int i = 0; i < 1; i++) {
-		BDirectory directory("/Data2/mail/Haiku-commits");
-			// "/system/apps");//  /Data2/mail/Haiku-bugs
-		entry_ref ref;
-		
-		while (true) {
-			status_t status = directory.GetNextRef(&ref);
-			if (status != B_OK)
-				break;
-			
-			BEntry entry(&ref);
-			char name[256]; //REF_SIZE
-			entry.GetName(name);
-	
-			Item* item = new PoseItem(this, name);
-			AddItem(item);
-	
-			count++;
-	
-			if (count % 500 == 0)
-				printf("%lu \n", count);
-		}
-	}
-	printf("Total added %lu \n", count);*/
-	
 	fHighLevelQuery.DoIt();
-	
-	for (uint32 j = 0; j < fLayouters.size(); j++)		// faire un callback pose added
-		fLayouters[j]->LayoutAllItems();
 			
 	_NotifyExtentChanged();	
 }
@@ -101,10 +56,10 @@ ItemView::HighLevelQueryEventReceived(uint32 code, /*const*/ HighLevelQueryResul
 	switch (code) {
 		case HighLevelQuery::HLQ_RESULT_ADDED:
 		{
-			if (result != NULL) {
+			/*if (result != NULL) {
 				Item* item = new PoseItem(this, result->entryRef);
 				AddItem(item);
-			}
+			}*/
 			break;
 		}
 		case HighLevelQuery::HLQ_FULL_UPDATE:
@@ -113,9 +68,13 @@ ItemView::HighLevelQueryEventReceived(uint32 code, /*const*/ HighLevelQueryResul
 			HighLevelQuery::ResultVector::iterator it = fHighLevelQuery.Results().begin();
 			for (; it != fHighLevelQuery.Results().end(); it++) {
 				//printf("rank %lu: %s\n", (*it).rank, (*it).entryRef.name);
-				Item* item = new PoseItem(this, (*it)->entryRef);
+				Item* item = new PoseItem(this, (*it)->entryRef);	// passer le rank
 				AddItem(item);
-			}			
+			}		
+			
+			for (uint32 i = 0; i < fLayouters.size(); i++)	// faire le layout au moment de l'ajout
+				fLayouters[i]->LayoutAllItems();
+			
 			break;
 		}
 		default:
@@ -264,6 +223,7 @@ ItemView::FrameResized(float width, float height)
 void
 ItemView::MouseDown(BPoint point)
 {
+	// todo double click
 	//faire un filtrage avec pose spatial cache
 	ItemList::iterator it = fItems.begin();
 	for (; it != fItems.end(); it++) {
@@ -275,7 +235,7 @@ ItemView::MouseDown(BPoint point)
 				(*it)->MouseDown(point);
 			} else if (buttons == B_SECONDARY_MOUSE_BUTTON) {
 				(*it)->ContextDown(point);
-				_MoveTest();
+				//_MoveTest();
 				//fLayouters[fCurrentLayouterIndex]->GetSpatialCache()->RemoveAllItems();
 				//fLayouters[fCurrentLayouterIndex]->GetSpatialCache()->_UpdateAllItems();
 				//fLayouters[fCurrentLayouterIndex]->GetSpatialCache()->FindIntersectingItems(Bounds());
@@ -330,7 +290,10 @@ ItemView::MouseMoved(BPoint point, uint32 transit, const BMessage* message)
 		nextPos = point - fDraggingPointOffset;
 		fDraggedItem->SetPosition(nextPos, fCurrentLayouterIndex);
 		Invalidate(fDraggedItem->Frame());
-		fLayouters[fCurrentLayouterIndex]->GetSpatialCache()->AddItem(fDraggedItem);
+		fLayouters[fCurrentLayouterIndex]->GetSpatialCache()->AddItem(fDraggedItem); 
+			// todo, itemmoved, et autonotify
+		
+		/* test colision
 		
 		BRect frame(fDraggedItem->Frame());
 		ItemSet res = fLayouters[fCurrentLayouterIndex]->GetSpatialCache()->FindIntersectingItems(frame);
@@ -350,7 +313,7 @@ ItemView::MouseMoved(BPoint point, uint32 transit, const BMessage* message)
 				fLayouters[fCurrentLayouterIndex]->GetSpatialCache()->AddItem((*it));
 				Invalidate((*it)->Frame());
 			}
-		}
+		}*/
 		
 	}
 }
@@ -386,17 +349,14 @@ ItemView::_NotifyExtentChanged()
 void
 ItemView::KeyUp(const char* bytes, int32 numBytes)
 {
-	char key = bytes[0];
-	printf("keyup\n");
-
-	switch (key) {
+	switch (bytes[0]) {
 		case B_LEFT_ARROW:
 			if (fCurrentLayouterIndex == 0)
 				fCurrentLayouterIndex = fLayouters.size() - 1;
 			else
 				fCurrentLayouterIndex--;
 
-			printf("Next layouter, %lu\n", fCurrentLayouterIndex);
+			printf("Layouter %lu\n", fCurrentLayouterIndex);
 			Invalidate();
 			break;
 
@@ -406,22 +366,26 @@ ItemView::KeyUp(const char* bytes, int32 numBytes)
 			else
 				fCurrentLayouterIndex++;
 
-			printf("Previous layouter, %lu\n", fCurrentLayouterIndex);
+			printf("Layouter %lu\n", fCurrentLayouterIndex);
 			Invalidate();
 			break;
 		
 		case B_UP_ARROW:
 		{
-			printf("Invert sort\n");			
-			fLayouters[fCurrentLayouterIndex]->RemoveAllItems();
+			printf("Invert sort\n");
+			printf("Layouter %lu\n", fCurrentLayouterIndex);			
 			
+			for (uint32 i = 0; i < fLayouters.size(); i++)
+				fLayouters[i]->RemoveAllItems();
+				
 			ItemList::iterator it = fItems.begin();
 			for (; it != fItems.end(); it++) {
 				delete (*it);
 			}
+			fItems.clear();
 			
-			fHighLevelQuery.InvertSort();
-			fLayouters[fCurrentLayouterIndex]->LayoutAllItems();
+			fHighLevelQuery.InvertSort();			
+						
 			Invalidate();
 			break;			
 		}

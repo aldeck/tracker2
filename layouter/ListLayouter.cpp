@@ -14,7 +14,8 @@
 #include <stdio.h>
 
 
-ListLayouter::ListLayouter(ItemView* parentItemView, float verticalSpacing, uint32 layouterIndex)
+ListLayouter::ListLayouter(uint32 layouterIndex, ItemView* parentItemView,
+	float verticalSpacing)
 	:
 	fLayouterIndex(layouterIndex),
 	fVerticalSpacing(verticalSpacing),
@@ -42,6 +43,7 @@ void
 ListLayouter::RemoveAllItems()
 {
 	printf("ListLayouter::RemoveAllItems()\n");
+	fSpatialCache->RemoveAllItems();
 	fItems.clear();
 }
 
@@ -49,6 +51,7 @@ ListLayouter::RemoveAllItems()
 void
 ListLayouter::LayoutAllItems()
 {
+	printf("ListLayouter::LayoutAllItems()\n");
 	BPoint pin(20, 20);
 	ItemList::iterator it = fItems.begin();
 	for (; it != fItems.end(); it++) {

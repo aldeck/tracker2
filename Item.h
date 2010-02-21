@@ -26,14 +26,15 @@ public:
 	virtual	void	ContextDown(BPoint point);
 	virtual	BRect	Frame() const = 0;
 
-	//todo choisir entre un simple MessageReceived, MouseDown gauche droit, ou Select, Context, Action, (Drag)
+	//todo choisir entre un simple MessageReceived, MouseDown gauche droit,
+	// ou Select, Context, Action, (Drag)
 
 	virtual BPoint	Position(uint32 space) const;
 	virtual void	SetPosition(const BPoint& position, uint32 space);
 	virtual uint32	Rank(uint32 space) const;
 	virtual void	SetRank(uint32 rank, uint32 space);
 
-	//Item::Moved callback/notifier
+	//ItemMoved callback/notifier
 	
 	virtual bool	Less(const Item* other) const { return false; };
 

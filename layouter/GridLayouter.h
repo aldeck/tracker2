@@ -12,7 +12,7 @@
 #include <Point.h>
 
 #include "Layouter.h"
-#include "ItemList.h"
+#include "ItemContainers.h"
 
 
 class Item;
@@ -21,8 +21,8 @@ class SpatialCache;
 
 class GridLayouter : public Layouter {
 public:
-						GridLayouter(ItemView* parentItemView,
-							const BPoint& spacing, uint32 layouterIndex);
+						GridLayouter(uint32 layouterIndex, ItemView* parentItemView,
+							const BPoint& spacing);
 	virtual				~GridLayouter();
 	virtual	void		AddItem(Item* item, bool updateNow = false);
 	virtual void		RemoveAllItems();

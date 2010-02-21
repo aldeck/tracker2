@@ -12,7 +12,7 @@
 
 #include <vector>
 
-#include "ItemList.h"
+#include "ItemContainers.h"
 #include "model/HighLevelQuery.h"
 
 class BScrollBar;
@@ -54,9 +54,7 @@ protected:
 	void			_Test();
 	void			_MoveTest();
 
-	ItemList		fItems;
-	typedef std::vector<Item*> ItemVector;
-	ItemVector		fSortedItems;
+	ItemVector		fItems;
 
 	typedef std::vector<Layouter*> LayouterList;
 	LayouterList	fLayouters;

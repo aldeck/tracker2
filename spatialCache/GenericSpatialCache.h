@@ -9,7 +9,7 @@
 #define _GENERIC_SPATIAL_CACHE_H
 
 #include "SpatialCache.h"
-#include "ItemList.h"
+#include "ItemContainers.h"
 
 #include <vector>
 

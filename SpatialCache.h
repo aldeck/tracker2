@@ -11,7 +11,7 @@
 #include <Rect.h>
 #include <Point.h>
 
-#include "ItemList.h"
+#include "ItemContainers.h"
 
 class BPose;
 class BPoseView;
