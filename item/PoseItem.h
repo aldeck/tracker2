@@ -10,15 +10,17 @@
 
 #include "Item.h"
 
+#include <Entry.h>
 #include <Rect.h>
 #include <String.h>
+
+#include <vector>
 
 class BPoint;
 
 class ItemView;
 class IconItem;
 class TextItem;
-struct entry_ref;
 
 class PoseItem : public Item {
 public:
@@ -31,9 +33,14 @@ public:
 	virtual bool	Less(const Item* other) const;
 
 protected:
+	bool			fLoaded;
+	void			_Load();
+		
+	entry_ref		fEntryRef;
 	IconItem*		fIconItem;
-	TextItem*		fNameItem;
-	//TextItem*		fTypeItem;
+	
+	typedef std::vector<TextItem*> TextItemVector;
+	TextItemVector	fTextItems;	
 };
 
 #endif /* _POSE_ITEM_H */

@@ -12,37 +12,40 @@
 #include "TextItem.h"
 #include "ItemView.h"
 
+#include <fs_attr.h>
 #include <Entry.h>
 
-PoseItem::PoseItem(ItemView* parentItemView, const entry_ref& ref)
+#include <stdio.h>
+
+
+PoseItem::PoseItem(ItemView* parentItemView, const entry_ref& entryRef)
 	:
 	Item(parentItemView),
-	fIconItem(NULL),
-	fNameItem(NULL)
+	fLoaded(false),
+	fEntryRef(entryRef),
+	fIconItem(NULL)
 {	
 
+	// attention on ouvre/ferme deux fois la node
+		fIconItem = new IconItem(fParentItemView, fEntryRef);	
 	
-	fIconItem = new IconItem(parentItemView, ref);
 	
-	/*BEntry entry(&ref);
-	char name[B_FILE_NAME_LENGTH];
-	entry.GetName(name);*/
-	fNameItem = new TextItem(parentItemView, ref.name);
-	//fTypeItem = new TextItem(parentItemView, ref.name);
 }
 
 
 PoseItem::~PoseItem()
 {
 	delete fIconItem;
-	delete fNameItem;
+	TextItemVector::iterator it = fTextItems.begin();
+	for (; it != fTextItems.end(); it++)
+		delete (*it);
 }
 
-
+//deprecate
 bool
 PoseItem::Less(const Item* other) const
 {
-	return fNameItem->Text() < dynamic_cast<const TextItem*>(other)->Text();
+	return true; //fNameItem->Text() < dynamic_cast<const TextItem*>(other)->Text();
 }
 
 
@@ -57,6 +60,48 @@ PoseItem::SetRank(uint32 sorting)
 {
 }*/
 
+void
+PoseItem::_Load()
+{
+	if (!fLoaded) {		
+	
+		fTextItems.push_back(new TextItem(fParentItemView, fEntryRef.name));
+	
+		// test, read some attributes a faire dans un lazy load
+		BNode node(&fEntryRef);
+		status_t err2 = node.InitCheck();
+		if (err2 != B_OK) {
+			printf("error opening node err=%s\n", strerror(err2));
+			return;
+		}
+		char attributeName[B_ATTR_NAME_LENGTH];
+		while (node.GetNextAttrName(attributeName) == B_OK) {
+			attr_info info;
+			if (node.GetAttrInfo(attributeName, &info) == B_OK) {
+				BString attribute;			
+				status_t err3 = node.ReadAttrString(attributeName, &attribute);
+				if (err3 != B_OK) {		
+					//printf("can't read attribute %s\n", attributeName);
+					attribute = "error";
+				}
+				
+				fTextItems.push_back(new TextItem(fParentItemView, BString(attributeName) << ": " << attribute));
+				
+				/*char attrData[2048];
+				if (info.size < 2048) {
+	 				ssize_t read = node.ReadAttr(attrName, (type_code)0, (off_t)0, attrData, info.size);
+	 				fTextItems.push_back(new TextItem(parentItemView, entryRef.name));
+	 			} else {
+	 				printf("toobig!=%lu ", info.size);
+	 			}*/	   			
+			} else {
+					printf("noattrinfo");
+	   		}
+		}
+		
+		fLoaded = true; 	// TODO error check	
+	}
+}
 
 void
 PoseItem::SetPosition(const BPoint& position, uint32 space)
@@ -64,22 +109,47 @@ PoseItem::SetPosition(const BPoint& position, uint32 space)
 	Item::SetPosition(position, space);
 
 	BPoint iconOffset;
-	BPoint nameOffset(32, 16);
+	
 	fIconItem->SetPosition(position + iconOffset, space);
-	fNameItem->SetPosition(position + nameOffset, space);
+	
+	BPoint nameOffset(32, 0);
+	TextItemVector::iterator it = fTextItems.begin();
+	for (; it != fTextItems.end(); it++) {
+		(*it)->SetPosition(position + nameOffset, space);
+		nameOffset.y += 16;	
+	}
+	
 }
 
 
 BRect
 PoseItem::Frame() const
 {
-	return fIconItem->Frame() | fNameItem->Frame();
+	// TODO think: on est obligé de loader pour avoir frame exact mais donc on ne peux pas mettre dans le 
+	// spatial cache sans loader...
+	// ca veut dire qu'il faut une taille fixe
+	if (fLoaded) {
+		BRect textItemsExtent(LONG_MAX, LONG_MAX, LONG_MIN, LONG_MIN);
+		TextItemVector::const_iterator it = fTextItems.begin();
+		for (; it != fTextItems.end(); it++)
+			textItemsExtent = textItemsExtent | (*it)->Frame();
+		return fIconItem->Frame() | textItemsExtent;
+	}
+	//return fIconItem->Frame();
+	
+	BRect bounds(0, 0, 320, 256);	//unnecessary object creation?
+	return bounds.OffsetBySelf(fPositions[fParentItemView->CurrentLayouterIndex()]);
+	
 }
 
 
 void
 PoseItem::Draw()
 {
+	_Load();
 	fIconItem->Draw();
-	fNameItem->Draw();
+	
+	TextItemVector::iterator it = fTextItems.begin();
+	for (; it != fTextItems.end(); it++)
+		(*it)->Draw();	
 }
