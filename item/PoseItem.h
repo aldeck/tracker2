@@ -35,6 +35,7 @@ public:
 protected:
 	bool			fLoaded;
 	void			_Load();
+	void			_InitTextItemPositions();
 		
 	entry_ref		fEntryRef;
 	IconItem*		fIconItem;

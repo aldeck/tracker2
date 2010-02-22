@@ -29,7 +29,7 @@ PoseItem::PoseItem(ItemView* parentItemView, const entry_ref& entryRef)
 	// attention on ouvre/ferme deux fois la node
 		fIconItem = new IconItem(fParentItemView, fEntryRef);	
 	
-	
+	//_Load();
 }
 
 
@@ -63,7 +63,8 @@ PoseItem::SetRank(uint32 sorting)
 void
 PoseItem::_Load()
 {
-	if (!fLoaded) {		
+	if (!fLoaded) {
+		printf("_Load %p\n", this);	
 	
 		fTextItems.push_back(new TextItem(fParentItemView, fEntryRef.name));
 	
@@ -99,9 +100,24 @@ PoseItem::_Load()
 	   		}
 		}
 		
+		//SetPosition(fPositions[fParentItemView->CurrentLayouterIndex()], fParentItemView->CurrentLayouterIndex()); // permet d'init les position des texts 	
+		_InitTextItemPositions();
 		fLoaded = true; 	// TODO error check	
 	}
 }
+
+
+void
+PoseItem::_InitTextItemPositions() {
+	
+	BPoint nameOffset(32, 0);
+	TextItemVector::iterator it = fTextItems.begin();
+	for (; it != fTextItems.end(); it++) {
+		(*it)->SetPosition(fPositions[fParentItemView->CurrentLayouterIndex()] + nameOffset, fParentItemView->CurrentLayouterIndex());
+		nameOffset.y += 16;
+	}	
+}
+	
 
 void
 PoseItem::SetPosition(const BPoint& position, uint32 space)
@@ -125,27 +141,33 @@ PoseItem::SetPosition(const BPoint& position, uint32 space)
 BRect
 PoseItem::Frame() const
 {
-	// TODO think: on est obligé de loader pour avoir frame exact mais donc on ne peux pas mettre dans le 
+	// TODO think: on est obligé de loader pour avoir frame exact donc on ne peux pas mettre dans le 
 	// spatial cache sans loader...
 	// ca veut dire qu'il faut une taille fixe
-	if (fLoaded) {
+	
+	/*if (fLoaded) {
 		BRect textItemsExtent(LONG_MAX, LONG_MAX, LONG_MIN, LONG_MIN);
 		TextItemVector::const_iterator it = fTextItems.begin();
 		for (; it != fTextItems.end(); it++)
 			textItemsExtent = textItemsExtent | (*it)->Frame();
+				
 		return fIconItem->Frame() | textItemsExtent;
-	}
+	}*/
 	//return fIconItem->Frame();
 	
-	BRect bounds(0, 0, 320, 256);	//unnecessary object creation?
-	return bounds.OffsetBySelf(fPositions[fParentItemView->CurrentLayouterIndex()]);
+	BRect bounds(0, 0, 480, 320);	//unnecessary object creation?
+	return bounds.OffsetBySelf(fPositions[fParentItemView->CurrentLayouterIndex()]); // toto Position() method
 	
 }
+
+// Hide / Show
+// ChildItems
 
 
 void
 PoseItem::Draw()
 {
+	printf("Draw %p\n", this);
 	_Load();
 	fIconItem->Draw();
 	

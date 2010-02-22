@@ -34,16 +34,16 @@ Item::~Item()
 void
 Item::MouseDown(BPoint point)
 {
-	printf("Item::MouseDown this=%p ", this);
-	point.PrintToStream();
+	//printf("Item::MouseDown this=%p ", this);
+	//point.PrintToStream();
 }
 
 
 void
 Item::ContextDown(BPoint point)
 {
-	printf("Item::ContextDown this=%p ", this);
-	point.PrintToStream();
+	//printf("Item::ContextDown this=%p ", this);
+	//point.PrintToStream();
 }
 
 

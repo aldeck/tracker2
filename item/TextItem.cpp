@@ -44,7 +44,7 @@ TextItem::_Load()
 BRect
 TextItem::Frame() const
 {
-	BRect bounds(fCachedBounds);	//unnecessary object creation
+	BRect bounds(fCachedBounds);	//unnecessary object creation?
 	return bounds.OffsetBySelf(fPositions[fParentItemView->CurrentLayouterIndex()]);
 }
 

@@ -206,8 +206,8 @@ ItemView::Draw(BRect updateRect)
 	}
 	
 	// draw items bounding box
-	if (fDebugDrawing)
-		StrokeRect(Extent());
+	//if (fDebugDrawing)
+	//	StrokeRect(Extent());
 		
 	//float ftime = (float) (system_time() - startTime);
 	//printf("ItemView::Draw drawn %d items from %d in %f µs\n", drawCount, res.size(), ftime);
