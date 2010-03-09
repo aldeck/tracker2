@@ -52,12 +52,13 @@ FileItem::~FileItem()
 BRect
 FileItem::Frame() const
 {
-	return BRect(fBitmap->Bounds()).OffsetToSelf(fPositions[fParentItemView->CurrentLayouterIndex()]);
+	return BRect(fBitmap->Bounds()).OffsetToSelf(Position());
 }
 
 
 void
 FileItem::Draw()
 {
-	fParentItemView->DrawBitmap(fBitmap, fPositions[fParentItemView->CurrentLayouterIndex()]);
+	fParentItemView->DrawBitmap(fBitmap, Position());
+	Item::Draw();
 }

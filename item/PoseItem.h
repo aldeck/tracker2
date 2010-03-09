@@ -27,7 +27,7 @@ public:
 					PoseItem(ItemView* parentItemView, const entry_ref& ref);
 	virtual			~PoseItem();
 	
-	virtual void	SetPosition(const BPoint& position, uint32 positionId);
+	/*virtual void	SetPosition(const BPoint& position, uint32 positionId);*/
 	virtual	void	Draw();
 	virtual	BRect	Frame() const;
 	virtual bool	Less(const Item* other) const;
@@ -35,13 +35,13 @@ public:
 protected:
 	bool			fLoaded;
 	void			_Load();
-	void			_InitTextItemPositions();
+	//void			_InitTextItemPositions();
 		
 	entry_ref		fEntryRef;
 	IconItem*		fIconItem;
 	
-	typedef std::vector<TextItem*> TextItemVector;
-	TextItemVector	fTextItems;	
+	/*typedef std::vector<TextItem*> TextItemVector;
+	TextItemVector	fTextItems;	*/
 };
 
 #endif /* _POSE_ITEM_H */

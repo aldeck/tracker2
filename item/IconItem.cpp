@@ -86,9 +86,9 @@ BRect
 IconItem::Frame() const
 {
 	if (fBitmap == NULL)
-		return BRect(0, 0, 32, 32).OffsetToSelf(fPositions[fParentItemView->CurrentLayouterIndex()]);
+		return BRect(0, 0, 32, 32).OffsetToSelf(Position());
 	else
-		return BRect(fBitmap->Bounds()).OffsetToSelf(fPositions[fParentItemView->CurrentLayouterIndex()]);
+		return BRect(fBitmap->Bounds()).OffsetToSelf(Position());
 }
 
 
@@ -100,5 +100,6 @@ IconItem::Draw()
 		_Load();
 	}
 	
-	fParentItemView->DrawBitmap(fBitmap, fPositions[fParentItemView->CurrentLayouterIndex()]);
+	fParentItemView->DrawBitmap(fBitmap, Position());
+	Item::Draw();
 }

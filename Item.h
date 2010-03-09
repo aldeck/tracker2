@@ -21,7 +21,7 @@ public:
 					Item(ItemView* parentItemView);
 	virtual			~Item ();
 
-	virtual	void	Draw() = 0;
+	virtual	void	Draw()/* = 0*/;
 	virtual	void	MouseDown(BPoint point);
 	virtual	void	ContextDown(BPoint point);
 	virtual	BRect	Frame() const = 0;
@@ -29,49 +29,35 @@ public:
 	//todo choisir entre un simple MessageReceived, MouseDown gauche droit,
 	// ou Select, Context, Action, (Drag)
 
-	virtual BPoint	Position(uint32 space) const;
-	virtual void	SetPosition(const BPoint& position, uint32 space);
-	virtual uint32	Rank(uint32 space) const;
-	virtual void	SetRank(uint32 rank, uint32 space);
+	virtual BPoint	Position() const;
+	//virtual void	SetPosition(const BPoint& position);
+	
+	virtual BPoint	RelativePosition() const;
+	virtual void	SetRelativePosition(const BPoint& position);
+	
+	/*virtual uint32	Rank() const;
+	virtual void	SetRank(uint32 rank);*/
 
 	//ItemMoved callback/notifier
-	
-	virtual bool	Less(const Item* other) const { return false; };
+
+			void	AddChild(Item* item, const BPoint& relativePosition);
+			void	RemoveChild(Item* item);
 
 protected:
-	ItemView*		fParentItemView;
+			void	AttachedToParent(Item* item);
+
+	ItemView*		fParentItemView;	//rename to fRenderView?
 
 	//void*			fUserData;
 	//ItemUserData*	fUserData;	//permet d'attacher des donees comme dans ogre ou bullet
 								//peut etre un lien vers un object commun entre plusieurs items
 
-	// one position per layouter
-	typedef std::vector<BPoint> PositionList;
-	PositionList	fPositions;
-
-	// one ordering per layouter or per sort criterion
-	typedef std::vector<uint32> RankList;
-	RankList		fRanks;
+	BPoint			fRelativePosition;
+	uint32			fRank;
 	
-	//ca implique qu'il faut une methode Item::Compare(Item* other, uint32 criterion)
-	//ou sinon ce n'est pas l'affaire de item mais de ses heritiers
-
-	// apres pas sur qu'il faille fair le tri dans les layouters, d'ailleurs un tri est toujours valide si
-	// on change de layout
-	// donc class Orderer
-	// les layouters organisent la position, les orderers les ranks , et parfois specialises sur une sous
-	// classe the item ex: FileItemOrderer
-
-	// on pourrait trier par couleur, avec un BitmapItemOrderer (dailleurs, IconItem devrait descendre de bitmap
-
-	// il faut pouvoir grouper des items (ex. texte+icone) et appliquer un ranking sur le groupe en fonction d'un tri sur
-	// un des elements du groupe
-	
-	//pour le groupage soit on fait des hierarchies de items soit des appartenances a des groupes
-	//il faut penser qu'il peut y avoir different groupages pour chaque layouts (est-ce un probleme?)
-	//ne pas oublier qu'un groupe d'item  est toujours destiné a un file (voir dir en expand mode) et que les differrents layouts/viewmodes vont peut etre juste disabler ou reagencer les sous items.
-	// amoins que l'on ne partage meme pas les items entre les modes/layouts
-
+	Item*			fParentItem;
+	typedef std::vector<Item*> ItemVector;
+	ItemVector		fChildItems;	
 };
 
 #endif /* _ITEM_H */

@@ -98,9 +98,9 @@ ItemView::~ItemView()
 void
 ItemView::AddItem(Item* item)
 {
-	fItems.push_back(item);
-	for (uint32 j = 0; j < fLayouters.size(); j++)
-		fLayouters[j]->AddItem(item);	// TODO do that in the viewmode (listener)
+	fItems.push_back(item);	
+	//for (uint32 j = 0; j < fLayouters.size(); j++)
+	//	fLayouters[j]->AddItem(item);	// TODO do that in the viewmode (listener)
 	
 	//_NotifyItemAdded(item);
 }
@@ -253,9 +253,9 @@ ItemView::_MoveTest()
 	ItemList::iterator it = fItems.begin();
 	for (; it != fItems.end(); it++) {
 		//fLayouters[fCurrentLayouterIndex]->GetSpatialCache()->RemoveItem(*it);
-		BPoint currentPos = (*it)->Position(fCurrentLayouterIndex);
+		BPoint currentPos = (*it)->RelativePosition();
 		BPoint nextPos = currentPos + BPoint(0, 5);
-		(*it)->SetPosition(nextPos, fCurrentLayouterIndex);
+		(*it)->SetRelativePosition(nextPos);
 		//fLayouters[fCurrentLayouterIndex]->GetSpatialCache()->AddItem(*it);
 		count++;
 	}
@@ -284,11 +284,11 @@ ItemView::MouseMoved(BPoint point, uint32 transit, const BMessage* message)
 	BPoint currentPos;
 	BPoint nextPos;
 	if (fDraggedItem != NULL) {
-		currentPos = fDraggedItem->Position(fCurrentLayouterIndex);
+		currentPos = fDraggedItem->RelativePosition();
 		Invalidate(fDraggedItem->Frame());
 		fLayouters[fCurrentLayouterIndex]->GetSpatialCache()->RemoveItem(fDraggedItem);
 		nextPos = point - fDraggingPointOffset;
-		fDraggedItem->SetPosition(nextPos, fCurrentLayouterIndex);
+		fDraggedItem->SetRelativePosition(nextPos);
 		Invalidate(fDraggedItem->Frame());
 		fLayouters[fCurrentLayouterIndex]->GetSpatialCache()->AddItem(fDraggedItem); 
 			// todo, itemmoved, et autonotify

@@ -27,19 +27,21 @@ PoseItem::PoseItem(ItemView* parentItemView, const entry_ref& entryRef)
 {	
 
 	// attention on ouvre/ferme deux fois la node
-		fIconItem = new IconItem(fParentItemView, fEntryRef);	
-	
+	fIconItem = new IconItem(fParentItemView, fEntryRef);	
+	AddChild(fIconItem, BPoint(0, 0));
 	//_Load();
 }
 
 
 PoseItem::~PoseItem()
 {
-	delete fIconItem;
+	// TODO
+	/*delete fIconItem;
 	TextItemVector::iterator it = fTextItems.begin();
 	for (; it != fTextItems.end(); it++)
-		delete (*it);
+		delete (*it);*/
 }
+
 
 //deprecate
 bool
@@ -66,7 +68,10 @@ PoseItem::_Load()
 	if (!fLoaded) {
 		printf("_Load %p\n", this);	
 	
-		fTextItems.push_back(new TextItem(fParentItemView, fEntryRef.name));
+		BPoint nameOffset(32, 0);
+		TextItem* textItem = new TextItem(fParentItemView, fEntryRef.name);
+		AddChild(textItem, nameOffset);		
+		nameOffset.y += 16;
 	
 		// test, read some attributes a faire dans un lazy load
 		BNode node(&fEntryRef);
@@ -74,7 +79,8 @@ PoseItem::_Load()
 		if (err2 != B_OK) {
 			printf("error opening node err=%s\n", strerror(err2));
 			return;
-		}
+		}		
+		
 		char attributeName[B_ATTR_NAME_LENGTH];
 		while (node.GetNextAttrName(attributeName) == B_OK) {
 			attr_info info;
@@ -86,8 +92,9 @@ PoseItem::_Load()
 					attribute = "error";
 				}
 				
-				fTextItems.push_back(new TextItem(fParentItemView, BString(attributeName) << ": " << attribute));
-				
+				textItem = new TextItem(fParentItemView, BString(attributeName) << ": " << attribute);
+				AddChild(textItem, nameOffset);
+				nameOffset.y += 16;	
 				/*char attrData[2048];
 				if (info.size < 2048) {
 	 				ssize_t read = node.ReadAttr(attrName, (type_code)0, (off_t)0, attrData, info.size);
@@ -99,15 +106,13 @@ PoseItem::_Load()
 					printf("noattrinfo");
 	   		}
 		}
-		
-		//SetPosition(fPositions[fParentItemView->CurrentLayouterIndex()], fParentItemView->CurrentLayouterIndex()); // permet d'init les position des texts 	
-		_InitTextItemPositions();
+						
 		fLoaded = true; 	// TODO error check	
 	}
 }
 
 
-void
+/*void
 PoseItem::_InitTextItemPositions() {
 	
 	BPoint nameOffset(32, 0);
@@ -116,10 +121,10 @@ PoseItem::_InitTextItemPositions() {
 		(*it)->SetPosition(fPositions[fParentItemView->CurrentLayouterIndex()] + nameOffset, fParentItemView->CurrentLayouterIndex());
 		nameOffset.y += 16;
 	}	
-}
+}*/
 	
 
-void
+/*void
 PoseItem::SetPosition(const BPoint& position, uint32 space)
 {
 	Item::SetPosition(position, space);
@@ -135,7 +140,7 @@ PoseItem::SetPosition(const BPoint& position, uint32 space)
 		nameOffset.y += 16;	
 	}
 	
-}
+}*/
 
 
 BRect
@@ -156,7 +161,7 @@ PoseItem::Frame() const
 	//return fIconItem->Frame();
 	
 	BRect bounds(0, 0, 480, 320);	//unnecessary object creation?
-	return bounds.OffsetBySelf(fPositions[fParentItemView->CurrentLayouterIndex()]); // toto Position() method
+	return bounds.OffsetBySelf(Position()); // toto Position() method
 	
 }
 
@@ -169,9 +174,5 @@ PoseItem::Draw()
 {
 	printf("Draw %p\n", this);
 	_Load();
-	fIconItem->Draw();
-	
-	TextItemVector::iterator it = fTextItems.begin();
-	for (; it != fTextItems.end(); it++)
-		(*it)->Draw();	
+	Item::Draw();
 }

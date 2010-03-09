@@ -57,7 +57,7 @@ GridLayouter::LayoutAllItems()
 	ItemList::iterator it = fItems.begin();
 	for (; it != fItems.end(); it++) {
 		fSpatialCache->RemoveItem(*it);
-		(*it)->SetPosition(pin, fLayouterIndex);
+		(*it)->SetRelativePosition(pin);
 		fSpatialCache->AddItem(*it);
 		pin.x += (*it)->Frame().Width() + fSpacing.x;
 		if (pin.x > 800) {

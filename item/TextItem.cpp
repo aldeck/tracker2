@@ -45,15 +45,16 @@ BRect
 TextItem::Frame() const
 {
 	BRect bounds(fCachedBounds);	//unnecessary object creation?
-	return bounds.OffsetBySelf(fPositions[fParentItemView->CurrentLayouterIndex()]);
+	return bounds.OffsetBySelf(Position());
 }
 
 
 void
 TextItem::Draw()
 {
-	BPoint position(fPositions[fParentItemView->CurrentLayouterIndex()]);
+	BPoint position(Position());
 	position.x += 4;
 	position.y += 12;
 	fParentItemView->DrawString(fText.String(), position);
+	Item::Draw();
 }

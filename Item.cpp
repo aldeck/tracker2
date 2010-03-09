@@ -15,19 +15,44 @@
 
 Item::Item(ItemView* parentItemView)
 	:
-	fParentItemView(parentItemView)
+	fParentItemView(parentItemView),
+	fRelativePosition(0, 0),
+	fParentItem(NULL)
 {
-	//TODO: clean that
-	for (int i = 0; i < 10; i++)
-		fPositions.push_back(BPoint(0, 0));
-
-	//for (int i = 0; i < 10; i++)
-	//	fOrderings.push_back(0);
 }
 
 
 Item::~Item()
 {
+}
+
+
+void
+Item::AttachedToParent(Item *item)
+{
+	fParentItem = item;
+}
+
+
+void
+Item::AddChild(Item *item, const BPoint& relativePosition)
+{	
+	fChildItems.push_back(item);
+	item->SetRelativePosition(relativePosition);
+	item->fParentItem = this;
+}
+
+
+void
+Item::RemoveChild(Item *item)
+{	
+	ItemVector::iterator it = fChildItems.begin();
+	for (; it != fChildItems.end(); it++) {
+		if (*it == item) {
+			 fChildItems.erase(it);
+			 break;
+		}
+	}
 }
 
 
@@ -47,36 +72,56 @@ Item::ContextDown(BPoint point)
 }
 
 
-uint32
-Item::Rank(uint32 space) const
+/*uint32
+Item::Rank() const
 {
 	return fRanks[space];
 }
 
 
 void
-Item::SetRank(uint32 position, uint32 space)
+Item::SetRank(uint32 rank)
 {
-	fRanks[space] = position;
+	fRank = rank;
+}*/
+
+
+void
+Item::Draw()
+{
+	ItemVector::iterator it = fChildItems.begin();
+	for (; it != fChildItems.end(); it++) {
+		(*it)->Draw();
+	}
+	fParentItemView->StrokeRect(Frame());
 }
 
 
 BPoint
-Item::Position(uint32 space) const
+Item::Position() const
 {
-	return fPositions[space];
+	// TODO cache this
+	if (fParentItem == NULL)
+		return fRelativePosition;
+	else
+		return fParentItem->Position() + fRelativePosition;
+}
+
+
+BPoint
+Item::RelativePosition() const
+{
+	return fRelativePosition;	
 }
 
 
 void
-Item::SetPosition(const BPoint& position, uint32 space)
-{
-	fPositions[space] = position;
+Item::SetRelativePosition(const BPoint& position)
+{		
+	fRelativePosition = position;
+	// cache propagate to children
+	/*ItemVector::iterator it = fChildItems.begin();
+	for (; it != fChildItems.end(); ++i) {
+		(*it)->SetPosition(fPosition
+	}*/
 }
-
-
-/*void
-Item::SetOrdering(uint32 ordering, int layouterIndex)
-{
-	fOrderings[layouterIndex] = ordering;
-}*/
