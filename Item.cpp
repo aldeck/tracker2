@@ -50,6 +50,7 @@ Item::RemoveChild(Item *item)
 	for (; it != fChildItems.end(); it++) {
 		if (*it == item) {
 			 fChildItems.erase(it);
+			 (*it)->fParentItem = NULL;
 			 break;
 		}
 	}
@@ -118,6 +119,7 @@ Item::RelativePosition() const
 void
 Item::SetRelativePosition(const BPoint& position)
 {		
+	//printf("SetRelativePosition x%f y%f %p\n", position.x, position.y, this);
 	fRelativePosition = position;
 	// cache propagate to children
 	/*ItemVector::iterator it = fChildItems.begin();

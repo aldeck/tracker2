@@ -35,7 +35,9 @@ ItemView::ItemView(BRect frame)
 	fDraggedItem(NULL),
 	fDebugDrawing(false)
 {
+	printf("size of Item %i\n", sizeof(Item));
 	
+
 	fLayouters.push_back(new ListLayouter(0, this, 50));
 	//fLayouters.push_back(new GridLayouter(1, this, BPoint(50, 50)));
 }
@@ -99,8 +101,8 @@ void
 ItemView::AddItem(Item* item)
 {
 	fItems.push_back(item);	
-	//for (uint32 j = 0; j < fLayouters.size(); j++)
-	//	fLayouters[j]->AddItem(item);	// TODO do that in the viewmode (listener)
+	for (uint32 j = 0; j < fLayouters.size(); j++)
+		fLayouters[j]->AddItem(item);	// TODO do that in the viewmode (listener)
 	
 	//_NotifyItemAdded(item);
 }
@@ -191,8 +193,8 @@ ItemView::Draw(BRect updateRect)
 			if ((*it) != fDraggedItem) {
 				//drawCount++;
 				(*it)->Draw();
-				if (fDebugDrawing)
-					StrokeRect((*it)->Frame()); //debug
+				//if (fDebugDrawing)
+				//	StrokeRect((*it)->Frame()); //debug
 			}
 		//}
 	}
@@ -201,8 +203,8 @@ ItemView::Draw(BRect updateRect)
 	if (fDraggedItem != NULL && fDraggedItem->Frame().Intersects(updateRect)) {
 		//drawCount++;
 		fDraggedItem->Draw();
-		if (fDebugDrawing)
-			StrokeRect(fDraggedItem->Frame()); //debug
+		//if (fDebugDrawing)
+		//	StrokeRect(fDraggedItem->Frame()); //debug
 	}
 	
 	// draw items bounding box

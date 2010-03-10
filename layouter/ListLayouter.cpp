@@ -56,7 +56,7 @@ ListLayouter::LayoutAllItems()
 	ItemList::iterator it = fItems.begin();
 	for (; it != fItems.end(); it++) {
 		fSpatialCache->RemoveItem(*it);
-		(*it)->SetRelativePosition(pin);		
+		(*it)->SetRelativePosition(pin);
 		fSpatialCache->AddItem(*it);
 		pin.y += (*it)->Frame().Height() + 5; //fVerticalSpacing;
 	}
