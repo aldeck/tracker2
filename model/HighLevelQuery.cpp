@@ -211,6 +211,31 @@ HighLevelQuery::_UnmanageEntry(const node_ref& nodeRef)
 
 
 void
+HighLevelQuery::_UnmanageAllEntries()
+{
+	printf("HighLevelQuery::_UnmanageAllEntries()\n");
+
+	EntryMap::iterator it = fEntries.begin();
+	for (; it != fEntries.end(); it++) {		
+
+		status_t err = watch_node(&it->first, B_STOP_WATCHING, this);
+
+		if (sVerbose || err != B_OK) {
+			BPath path(&it->second);
+			printf("HighLevelQuery::_UnmanageEntry (%lli, %s), Stop watching B_WATCH_NAME err=%s\n",
+				it->first.node, path.Path(), strerror(err));
+		}
+		
+		//_NotifyEntryRemoved(nodeRef, (*it).second);		
+		//fEntries.erase(it);
+				
+	}
+
+	fEntries.clear();
+}
+
+
+void
 HighLevelQuery::_UpdateEntry(const node_ref& nodeRef, const entry_ref& entry)
 {
 	EntryMap::iterator it = fEntries.find(nodeRef);
@@ -440,8 +465,11 @@ HighLevelQuery::_Sort()		// full sort and rank
 
 
 void
-HighLevelQuery::DoIt()
+HighLevelQuery::ChangeDirectory(const BString& uri)
 {
+	printf("HighLevelQuery::ChangeDirectory('%s')\n", uri.String());
+	_UnmanageAllEntries();
+
 	int32 count = 0;
 	bigtime_t queryStartTime = system_time();
 
@@ -470,7 +498,7 @@ HighLevelQuery::DoIt()
 		count++;
 	}*/
 
-	BDirectory directory("/boot/system/apps");
+	BDirectory directory(uri);
 	// /boot/home/Desktop/tracker2test   /system/apps   /Data2/mail/Haiku-bugs
 	status_t error = directory.InitCheck();
 

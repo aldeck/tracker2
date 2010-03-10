@@ -51,7 +51,8 @@ public:
 								HighLevelQuery();
 	virtual						~HighLevelQuery();	
 	
-			void				DoIt();
+			//void				DoIt();
+			void				ChangeDirectory(const BString& uri);
 
 	virtual void				MessageReceived(BMessage* message);
 			void				AddListener(HighLevelQueryListener* listener);
@@ -86,6 +87,7 @@ private:
 
 			void				_ManageEntry(const entry_ref& entry);
 			void				_UnmanageEntry(const node_ref& node);
+			void				_UnmanageAllEntries();
 			void				_UpdateEntry(const node_ref& nodeRef,
 									const entry_ref& entry);
 									

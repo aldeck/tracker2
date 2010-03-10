@@ -15,11 +15,15 @@
 #include "ItemContainers.h"
 #include "model/HighLevelQuery.h"
 
+
 class BScrollBar;
 class Item;
 class Layouter;
 
+
 const uint32 kMsgExtentChanged = 'ExCh';
+const uint32 kMsgURIChanged = 'UrCh';
+
 
 class ItemView : public BView, public HighLevelQueryListener {
 public:
@@ -28,6 +32,7 @@ public:
 
 	virtual void	AddItem(Item* item);
 	virtual void	RemoveItem(Item* item);
+	virtual void	RemoveAllItems();
 
 	virtual void	Draw(BRect updateRect);
 	virtual void	AttachedToWindow();

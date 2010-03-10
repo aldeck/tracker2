@@ -21,7 +21,7 @@
 #include "ItemView.h"
 
 
-enum {
+/*enum {
 	OPEN_LOCATION = 'open',
 	GO_BACK = 'goba',
 	GO_FORWARD = 'gofo',
@@ -38,7 +38,7 @@ enum {
 	TEXT_HIDE_FIND_GROUP = 'hfnd',
 	TEXT_FIND_NEXT = 'fndn',
 	TEXT_FIND_PREVIOUS = 'fndp',
-};
+};*/
 
 
 static BLayoutItem*
@@ -66,8 +66,9 @@ MainWindow::MainWindow(BRect frame, const char* title)
 	fMenuBar->AddItem(menu);
 	
 	// URI
-	fURITextControl = new BTextControl("uri", "", "", NULL);
+	fURITextControl = new BTextControl("uri", "", "", new BMessage(kMsgURIChanged));
 	fURITextControl->SetDivider(50.0);
+	
 	
 	//BRect toolbarFrame(Bounds());
 	//toolbarFrame.bottom = toolbarFrame.bottom + 24;
@@ -81,10 +82,8 @@ MainWindow::MainWindow(BRect frame, const char* title)
 	viewFrame.bottom = viewFrame.bottom - B_H_SCROLL_BAR_HEIGHT;
 
 	fItemView = new ItemView(viewFrame/*Bounds()*/);
-	//fRootView->AddChild(fItemView);
-
+	
 	fRootView = new BScrollView("rootView", fItemView, B_FOLLOW_ALL, 0, true, true);	
-	//AddChild(fRootView);
 	
 	const float kInsetSpacing = 5;
 	const float kElementSpacing = 7;
@@ -121,7 +120,7 @@ MainWindow::QuitRequested()
 void
 MainWindow::DispatchMessage(BMessage* message, BHandler* target)
 {
-	if (fURITextControl && message->what == B_KEY_DOWN
+	/*if (fURITextControl && message->what == B_KEY_DOWN
 		&& target == fURITextControl->TextView()) {
 		// Handle B_RETURN in the URL text control. This is the easiest
 		// way to react *only* when the user presses the return key in the
@@ -131,15 +130,15 @@ MainWindow::DispatchMessage(BMessage* message, BHandler* target)
 		if (message->FindString("bytes", &bytes) == B_OK
 			&& bytes[0] == B_RETURN) {
 			// Do it in such a way that the user sees the Go-button go down.
-			/*fGoButton->SetValue(B_CONTROL_ON);
-			UpdateIfNeeded();
-			fGoButton->Invoke();
-			snooze(1000);
-			fGoButton->SetValue(B_CONTROL_OFF);*/
+			//fGoButton->SetValue(B_CONTROL_ON);
+			//UpdateIfNeeded();
+			//fGoButton->Invoke();
+			//snooze(1000);
+			//fGoButton->SetValue(B_CONTROL_OFF);
 			BMessage msg(GOTO_URI);
 			BMessenger(fItemView).SendMessage(&msg);
 		}
-	}
+	}*/
 	BWindow::DispatchMessage(message, target);
 }
 
@@ -148,11 +147,18 @@ MainWindow::DispatchMessage(BMessage* message, BHandler* target)
 void
 MainWindow::MessageReceived(BMessage *message)
 {
-	message->PrintToStream();
+	//message->PrintToStream();
 	switch (message->what) {
 		case kMsgExtentChanged:
 			_UpdateScrollBars();
 			break;
+		case (kMsgURIChanged):
+		{			
+			BString uri = fURITextControl->Text();			
+			message->AddString("uri", uri);
+			BMessenger(fItemView).SendMessage(message);			
+			break;
+		}
 		default:
 			BWindow::MessageReceived(message);
 	}

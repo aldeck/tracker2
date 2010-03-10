@@ -45,9 +45,9 @@ ItemView::ItemView(BRect frame)
 
 void ItemView::_Test()
 {
-	fHighLevelQuery.DoIt();
+	fHighLevelQuery.ChangeDirectory("/boot/home");
 			
-	_NotifyExtentChanged();	
+	
 }
 
 
@@ -67,15 +67,21 @@ ItemView::HighLevelQueryEventReceived(uint32 code, /*const*/ HighLevelQueryResul
 		case HighLevelQuery::HLQ_FULL_UPDATE:
 		{
 			printf("ItemView::HighLevelQueryEventReceived HLQ_FULL_UPDATE event\n");
+			
+			RemoveAllItems();
+			
 			HighLevelQuery::ResultVector::iterator it = fHighLevelQuery.Results().begin();
 			for (; it != fHighLevelQuery.Results().end(); it++) {
 				//printf("rank %lu: %s\n", (*it).rank, (*it).entryRef.name);
 				Item* item = new PoseItem(this, (*it)->entryRef);	// passer le rank
+				printf("new %p\n", item);
 				AddItem(item);
 			}		
 			
 			for (uint32 i = 0; i < fLayouters.size(); i++)	// faire le layout au moment de l'ajout
 				fLayouters[i]->LayoutAllItems();
+			
+			_NotifyExtentChanged();
 			
 			break;
 		}
@@ -111,7 +117,26 @@ ItemView::AddItem(Item* item)
 void
 ItemView::RemoveItem(Item* item)
 {
+	// TODO
+}
+
+
+void
+ItemView::RemoveAllItems()
+{
+	printf("ItemView::RemoveAllItems\n");
+	for (uint32 i = 0; i < fLayouters.size(); i++)
+		fLayouters[i]->RemoveAllItems();
+		
+	ItemList::iterator it = fItems.begin();
+	for (; it != fItems.end(); it++) {
+		printf("delete %p\n", (*it));
+		delete (*it);
+	}
+	fItems.clear();
 	
+	int* foo = new int[100];
+	printf("foo %p\n", foo);
 }
 
 
@@ -166,13 +191,12 @@ ItemView::MessageReceived(BMessage *message)
 			_MouseDrag(point);
 			break;
 		}
-		case ('goui'):
-		{
-			
+		case (kMsgURIChanged):
+		{			
 			BString uri;
-			message->FindString("uri", &uri);
-			printf("ouioui '%s'\n", uri.String());
-			//fHighLevelQuery.InvertSort();
+			message->FindString("uri", &uri);			
+			fHighLevelQuery.ChangeDirectory(uri);
+			MakeFocus(true);
 			break;
 		}
 		default:
@@ -385,15 +409,6 @@ ItemView::KeyUp(const char* bytes, int32 numBytes)
 		{
 			printf("Invert sort\n");
 			printf("Layouter %lu\n", fCurrentLayouterIndex);			
-			
-			for (uint32 i = 0; i < fLayouters.size(); i++)
-				fLayouters[i]->RemoveAllItems();
-				
-			ItemList::iterator it = fItems.begin();
-			for (; it != fItems.end(); it++) {
-				delete (*it);
-			}
-			fItems.clear();
 			
 			fHighLevelQuery.InvertSort();			
 						
