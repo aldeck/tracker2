@@ -470,7 +470,7 @@ HighLevelQuery::DoIt()
 		count++;
 	}*/
 
-	BDirectory directory("/Data2/mail/Haiku-bugs");
+	BDirectory directory("/boot/system/apps");
 	// /boot/home/Desktop/tracker2test   /system/apps   /Data2/mail/Haiku-bugs
 	status_t error = directory.InitCheck();
 

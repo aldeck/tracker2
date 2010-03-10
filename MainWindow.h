@@ -10,8 +10,12 @@
 
 #include <Window.h>
 
+
 class ItemView;
+class BHandler;
+class BMenuBar;
 class BScrollView;
+class BTextControl;
 
 class MainWindow: public BWindow {
 public:
@@ -19,13 +23,18 @@ public:
 					~MainWindow();
 
 	virtual bool	QuitRequested();
-	virtual void	MessageReceived(BMessage *message);
+	virtual void	MessageReceived(BMessage* message);
+	virtual void	DispatchMessage(BMessage* message, BHandler* target);
 	
 protected:
 	void			_UpdateScrollBars();
 
+	BView*			fToolbarView;
 	BScrollView*	fRootView;
 	ItemView*		fItemView;
+	
+	BMenuBar*		fMenuBar;
+	BTextControl*	fURITextControl;
 };
 
 #endif /* _MAINWINDOW_H */

@@ -166,6 +166,15 @@ ItemView::MessageReceived(BMessage *message)
 			_MouseDrag(point);
 			break;
 		}
+		case ('goui'):
+		{
+			
+			BString uri;
+			message->FindString("uri", &uri);
+			printf("ouioui '%s'\n", uri.String());
+			//fHighLevelQuery.InvertSort();
+			break;
+		}
 		default:
 			BView::MessageReceived(message);
 	}
