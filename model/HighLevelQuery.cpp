@@ -104,10 +104,9 @@ HighLevelQuery::_ManageEntry(const entry_ref& entryRef)
 		// le watch sur le fichier et sur le repertoire
 		uint32 flags = /*B_WATCH_NAME |*/ B_WATCH_STAT | B_WATCH_ATTR;
 		status_t err = watch_node(&nodeRef, flags, this);
-		fEntryCount++;
-		if (sVerbose || err != B_OK) {
+		if (sVerbose || err != B_OK) {			
 			BPath path(&entryRef);
-			printf("%lu HighLevelQuery::_ManageEntry (%lli, %s). Start watching err=%s\n", fEntryCount,
+			printf("%lu HighLevelQuery::_ManageEntry (%lli, %s). Start watching err=%s\n", fEntries.size(),
 				nodeRef.node, path.Path(), strerror(err));
 		}
 		
@@ -204,7 +203,8 @@ HighLevelQuery::_UnmanageEntry(const node_ref& nodeRef)
 		
 		//_NotifyEntryRemoved(nodeRef, (*it).second);		
 		fEntries.erase(it);
-				
+		// TODO remove from fResults
+		printf("count = %li\n", fEntries.size());		
 	} else
 		printf("HighLevelQuery::_UnmanageEntry node %lli is not managed!!!\n", nodeRef.node);
 }
@@ -232,6 +232,31 @@ HighLevelQuery::_UnmanageAllEntries()
 	}
 
 	fEntries.clear();
+	fResults.clear();
+	printf("count = %li\n", fEntries.size());
+}
+
+
+void
+HighLevelQuery::_UnmanageCurrentDirectory()
+{
+	status_t err = fCurrentDirectory.InitCheck();
+	if (err != B_OK) {
+		printf("HighLevelQuery::_UnmanageCurrentDirectory Error: %s\n",
+			strerror(err));	
+		return;
+	}
+	
+	node_ref nodeRef;
+   	fCurrentDirectory.GetNodeRef(&nodeRef);	// TODO error check
+   	
+	err = watch_node(&nodeRef, B_STOP_WATCHING, this);
+
+	if (sVerbose || err != B_OK) {
+		BPath path(&fCurrentDirectory);
+		printf("HighLevelQuery::_UnmanageCurrentDirectory (%lli, %s), Stop watching err=%s\n",
+			nodeRef.node, path.Path(), strerror(err));
+	}
 }
 
 
@@ -452,7 +477,7 @@ HighLevelQuery::_Sort()		// full sort and rank
 	for (uint32 i = 0; i < fResults.size(); ++i) {
 		fResults[i]->rank = i;
 		if (fResults[i]->lastRank != i) {
-			//_NotifyEvent(HLQ_RANK_CHANGED, &fResults[i]);
+			//_NotifyEvent(HLQ_RANK_CHANGED, &fResults[i]); // TODO batch in blocks	_NotifyEvent(HLQ_RANKS_OFFSETED, beginRank, endRank);		
 			fResults[i]->lastRank = i;
 		}
 	}
@@ -468,7 +493,9 @@ void
 HighLevelQuery::ChangeDirectory(const BString& uri)
 {
 	printf("HighLevelQuery::ChangeDirectory('%s')\n", uri.String());
+	
 	_UnmanageAllEntries();
+	_UnmanageCurrentDirectory();
 
 	int32 count = 0;
 	bigtime_t queryStartTime = system_time();
@@ -498,16 +525,13 @@ HighLevelQuery::ChangeDirectory(const BString& uri)
 		count++;
 	}*/
 
-	BDirectory directory(uri);
-	// /boot/home/Desktop/tracker2test   /system/apps   /Data2/mail/Haiku-bugs
-	status_t error = directory.InitCheck();
-
+	status_t error = fCurrentDirectory.SetTo(uri);	
 	if (error != B_OK)
-		printf("directory.InitCheck error=%s\n", strerror(error));
+		printf("fCurrentDirectory.SetTo error=%s\n", strerror(error));
 
 	while (true) {
 		entry_ref ref;
-		status_t status = directory.GetNextRef(&ref);
+		status_t status = fCurrentDirectory.GetNextRef(&ref);
 		if (status != B_OK)
 			break;
 
@@ -516,10 +540,11 @@ HighLevelQuery::ChangeDirectory(const BString& uri)
 		count++;
 	}
 
+	// _ManageCurrentDirectory
 	node_ref ref;
-	directory.GetNodeRef(&ref);
+	fCurrentDirectory.GetNodeRef(&ref);
 	status_t status = watch_node(&ref, B_WATCH_ALL, this);
-	printf("HighLevelQuery Watching directory, status=%s\n", strerror(status));
+	printf("HighLevelQuery Watching Current Directory, status=%s\n", strerror(status));
 	
 	bigtime_t queryTime = system_time() - queryStartTime;
 	printf("HighLevelQuery added %ld entries, fs %llims (%fms/kEntry)\n",

@@ -74,7 +74,7 @@ ItemView::HighLevelQueryEventReceived(uint32 code, /*const*/ HighLevelQueryResul
 			for (; it != fHighLevelQuery.Results().end(); it++) {
 				//printf("rank %lu: %s\n", (*it).rank, (*it).entryRef.name);
 				Item* item = new PoseItem(this, (*it)->entryRef);	// passer le rank
-				printf("new %p\n", item);
+				//printf("add new %p %s\n", item, (*it)->entryRef.name);
 				AddItem(item);
 			}		
 			
@@ -82,6 +82,8 @@ ItemView::HighLevelQueryEventReceived(uint32 code, /*const*/ HighLevelQueryResul
 				fLayouters[i]->LayoutAllItems();
 			
 			_NotifyExtentChanged();
+			
+			Invalidate(); // ptetre pas necessaire
 			
 			break;
 		}
@@ -130,13 +132,13 @@ ItemView::RemoveAllItems()
 		
 	ItemList::iterator it = fItems.begin();
 	for (; it != fItems.end(); it++) {
-		printf("delete %p\n", (*it));
+		//printf("delete %p\n", (*it));
 		delete (*it);
 	}
 	fItems.clear();
 	
-	int* foo = new int[100];
-	printf("foo %p\n", foo);
+	//int* foo = new int[100];
+	//printf("foo %p\n", foo);
 }
 
 
@@ -269,7 +271,7 @@ ItemView::MouseDown(BPoint point)
 			if (buttons == B_PRIMARY_MOUSE_BUTTON) {
 				(*it)->MouseDown(point);
 			} else if (buttons == B_SECONDARY_MOUSE_BUTTON) {
-				(*it)->ContextDown(point);
+				(*it)->ContextDown(point);				
 				//_MoveTest();
 				//fLayouters[fCurrentLayouterIndex]->GetSpatialCache()->RemoveAllItems();
 				//fLayouters[fCurrentLayouterIndex]->GetSpatialCache()->_UpdateAllItems();
@@ -411,10 +413,17 @@ ItemView::KeyUp(const char* bytes, int32 numBytes)
 			printf("Layouter %lu\n", fCurrentLayouterIndex);			
 			
 			fHighLevelQuery.InvertSort();			
-						
 			Invalidate();
 			break;			
 		}
+		
+		case B_DOWN_ARROW:
+		{
+			RemoveAllItems();			
+			Invalidate();
+			break;			
+		}
+		
 		case 'd':
 			fDebugDrawing = !fDebugDrawing;
 			Invalidate();

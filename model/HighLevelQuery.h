@@ -10,6 +10,7 @@
 
 #include "HighLevelQueryListener.h"
 
+#include <Directory.h>
 #include <Entry.h>
 #include <Handler.h>
 #include <Node.h>
@@ -21,6 +22,7 @@
 #include <vector>
 
 #include "NaturalCompare.h"	// test
+
 
 class HighLevelQueryListener;
 
@@ -88,6 +90,7 @@ private:
 			void				_ManageEntry(const entry_ref& entry);
 			void				_UnmanageEntry(const node_ref& node);
 			void				_UnmanageAllEntries();
+			void				_UnmanageCurrentDirectory();
 			void				_UpdateEntry(const node_ref& nodeRef,
 									const entry_ref& entry);
 									
@@ -110,10 +113,11 @@ private:
 			typedef std::vector<HighLevelQueryListener*> ListenerList;
 			ListenerList		fListeners;
 			
-			uint32				fEntryCount; //debug
 			bool				fDebug;
 			
 			bool				fInvertSortToggle;
+			
+			BDirectory			fCurrentDirectory;
 };
 
 #endif	// _HIGH_LEVEL_QUERY_H

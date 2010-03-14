@@ -66,7 +66,7 @@ void
 PoseItem::_Load()
 {
 	if (!fLoaded) {
-		printf("_Load %p\n", this);	
+		//printf("_Load %p\n", this);	
 	
 		BPoint nameOffset(32, 0);
 		TextItem* textItem = new TextItem(fParentItemView, fEntryRef.name);
@@ -172,7 +172,7 @@ PoseItem::Frame() const
 void
 PoseItem::Draw()
 {
-	printf("Draw %p\n", this);
+	//printf("Draw %p\n", this);
 	_Load();
 	Item::Draw();
 }
