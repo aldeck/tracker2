@@ -21,6 +21,8 @@
 #include <sys/resource.h>
 #include <sys/stat.h>
 
+#include "Chrono.h"
+
 
 static bool sVerbose = false;
 
@@ -156,6 +158,7 @@ HighLevelQuery::_ManageEntry(const entry_ref& entryRef)
 
 		fResults.push_back(result);
 		//_NotifyEvent(HLQ_RESULT_ADDED, &result);
+		//_NotifyEvent(HLQ_FULL_UPDATE, NULL); // TODO partial update
 		
 		//printf(" ]\n");	
 		
@@ -203,8 +206,9 @@ HighLevelQuery::_UnmanageEntry(const node_ref& nodeRef)
 		
 		//_NotifyEntryRemoved(nodeRef, (*it).second);		
 		fEntries.erase(it);
-		// TODO remove from fResults
-		printf("count = %li\n", fEntries.size());		
+		// TODO remove from fResults, or marge results and fentries
+		//_NotifyEvent(HLQ_FULL_UPDATE, NULL); // TODO partial update
+		//printf("count = %li\n", fEntries.size());		
 	} else
 		printf("HighLevelQuery::_UnmanageEntry node %lli is not managed!!!\n", nodeRef.node);
 }
@@ -269,6 +273,7 @@ HighLevelQuery::_UpdateEntry(const node_ref& nodeRef, const entry_ref& entry)
 		it->second = entry;
 		BPath toPath(&entry);
 		printf("HighLevelQuery::_UpdateEntry (%lli, %s -> %s)\n", nodeRef.node, fromPath.Path(), toPath.Path());
+		//_NotifyEvent(HLQ_FULL_UPDATE, NULL); // TODO partial update
 	} else
 		printf("HighLevelQuery::_UpdateEntry node %lli is not managed!!!\n", nodeRef.node);
 }
@@ -499,7 +504,7 @@ HighLevelQuery::ChangeDirectory(const BString& uri)
 
 	int32 count = 0;
 	bigtime_t queryStartTime = system_time();
-
+	Chrono queryChrono;
 	/*
 	status_t status = query.Fetch();
 	if (status != B_OK) {
@@ -549,6 +554,6 @@ HighLevelQuery::ChangeDirectory(const BString& uri)
 	bigtime_t queryTime = system_time() - queryStartTime;
 	printf("HighLevelQuery added %ld entries, fs %llims (%fms/kEntry)\n",
 		count, queryTime / 1000, (float)queryTime / (float)count);
-	
+	queryChrono.Stop("HighLevelQueryChrono");
 	_Sort();			
 }

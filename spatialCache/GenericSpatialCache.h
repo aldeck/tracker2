@@ -24,8 +24,10 @@ public:
 	virtual				~GenericSpatialCache();
 
 	virtual	void		AddItem(Item* item);
-	virtual	void		RemoveItem(Item* item);
+	virtual	void		RemoveItem(Item* item);	
 	virtual	void		RemoveAllItems();
+	virtual	void		ItemChanged(Item* item);
+	virtual	void		AllItemsChanged(Item* item);
 	virtual void		_UpdateAllItems(); // test
 
 	virtual	Item*		FindUpperLeftItem() const;

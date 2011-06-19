@@ -140,6 +140,42 @@ GenericSpatialCache::RemoveAllItems()
 
 
 void
+GenericSpatialCache::ItemChanged(Item* item)
+{
+	//TODO
+}
+
+
+void
+GenericSpatialCache::AllItemsChanged(Item* item)
+ // TODO ca peut etre aussi la forme de l'item qui change
+{
+	bigtime_t startTime = system_time();
+	
+	/*for (int i = 0; i < fTableSize; i++) {
+		if (fTable[i] != NULL) {
+			ItemList::iterator it = fTable[i]->begin();
+			for (; it != fTable[i]->end(); it++) {
+				if ((*it) == item) {
+					// TODO check if hash has changed.. mmh mais y'en a plusieurs par item
+					
+					// peut etre utiliser des listes chainées si on veut optimiser
+					// les ajout/supressions, surtout qu'on utilise que la lecture 
+					// sequentielle
+					break;
+				}
+			}
+		}	
+	}*/
+	
+		
+	bigtime_t time = system_time() - startTime;
+	float ftime = (float)time / 1000.0f;
+	printf("GenericSpatialCache::AllItemsMoved() %f ms\n", ftime);
+}
+
+
+void
 GenericSpatialCache::_UpdateAllItems()
 {
 	// todo on pourrait verifier si l'item a bougé avec discretize pour accelerer l'update

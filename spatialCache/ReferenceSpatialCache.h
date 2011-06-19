@@ -24,6 +24,8 @@ public:
 	virtual	void		AddItem(Item* item);
 	virtual	void		RemoveItem(Item* item);
 	virtual	void		RemoveAllItems();
+	virtual	void		ItemChanged(Item* item);
+	virtual	void		AllItemsChanged(Item* item);
 
 	virtual	Item*		FindUpperLeftItem() const;
 	virtual	ItemSet		FindIntersectingItems(const BPoint& point) const;

@@ -10,6 +10,9 @@
 
 #include "Item.h"
 #include "GenericSpatialCache.h"
+#include "ReferenceSpatialCache.h"
+
+#include <OS.h> // system_time
 
 #include <stdio.h>
 
@@ -21,7 +24,7 @@ ListLayouter::ListLayouter(uint32 layouterIndex, ItemView* parentItemView,
 	fVerticalSpacing(verticalSpacing),
 	fItemView(parentItemView)
 {
-	fSpatialCache = new GenericSpatialCache(parentItemView);
+	fSpatialCache = new ReferenceSpatialCache(parentItemView);
 }
 
 
@@ -51,13 +54,16 @@ ListLayouter::RemoveAllItems()
 void
 ListLayouter::LayoutAllItems()
 {
-	printf("ListLayouter::LayoutAllItems()\n");
+	bigtime_t startTime = system_time();	
+	printf("ListLayouter::LayoutAllItems()");
 	BPoint pin(20, 20);
 	ItemList::iterator it = fItems.begin();
-	for (; it != fItems.end(); it++) {
-		fSpatialCache->RemoveItem(*it);
+	for (; it != fItems.end(); it++) {		
 		(*it)->SetRelativePosition(pin);
-		fSpatialCache->AddItem(*it);
+		fSpatialCache->ItemChanged(*it);
 		pin.y += (*it)->Frame().Height() + 5; //fVerticalSpacing;
 	}
+	
+	bigtime_t time = system_time() - startTime;
+	printf(" %lluµs\n", time);
 }

@@ -12,7 +12,7 @@
 #include <algorithm>
 
 #include <Directory.h>
-#include <DragTrackingFilter.h>
+#include "DragTrackingFilter.h"
 #include <Entry.h>
 #include <Message.h>
 #include <Messenger.h>
@@ -36,7 +36,7 @@ ItemView::ItemView(BRect frame)
 	fDebugDrawing(false)
 {
 	printf("size of Item %i\n", sizeof(Item));
-	
+
 
 	fLayouters.push_back(new ListLayouter(0, this, 50));
 	//fLayouters.push_back(new GridLayouter(1, this, BPoint(50, 50)));
@@ -46,8 +46,8 @@ ItemView::ItemView(BRect frame)
 void ItemView::_Test()
 {
 	fHighLevelQuery.ChangeDirectory("/boot/home");
-			
-	
+
+
 }
 
 
@@ -67,24 +67,24 @@ ItemView::HighLevelQueryEventReceived(uint32 code, /*const*/ HighLevelQueryResul
 		case HighLevelQuery::HLQ_FULL_UPDATE:
 		{
 			printf("ItemView::HighLevelQueryEventReceived HLQ_FULL_UPDATE event\n");
-			
+
 			RemoveAllItems();
-			
+
 			HighLevelQuery::ResultVector::iterator it = fHighLevelQuery.Results().begin();
 			for (; it != fHighLevelQuery.Results().end(); it++) {
 				//printf("rank %lu: %s\n", (*it).rank, (*it).entryRef.name);
 				Item* item = new PoseItem(this, (*it)->entryRef);	// passer le rank
 				//printf("add new %p %s\n", item, (*it)->entryRef.name);
 				AddItem(item);
-			}		
-			
+			}
+
 			for (uint32 i = 0; i < fLayouters.size(); i++)	// faire le layout au moment de l'ajout
 				fLayouters[i]->LayoutAllItems();
-			
+
 			_NotifyExtentChanged();
-			
+
 			Invalidate(); // ptetre pas necessaire
-			
+
 			break;
 		}
 		default:
@@ -108,10 +108,10 @@ ItemView::~ItemView()
 void
 ItemView::AddItem(Item* item)
 {
-	fItems.push_back(item);	
+	fItems.push_back(item);
 	for (uint32 j = 0; j < fLayouters.size(); j++)
 		fLayouters[j]->AddItem(item);	// TODO do that in the viewmode (listener)
-	
+
 	//_NotifyItemAdded(item);
 }
 
@@ -129,14 +129,14 @@ ItemView::RemoveAllItems()
 	printf("ItemView::RemoveAllItems\n");
 	for (uint32 i = 0; i < fLayouters.size(); i++)
 		fLayouters[i]->RemoveAllItems();
-		
+
 	ItemList::iterator it = fItems.begin();
 	for (; it != fItems.end(); it++) {
 		//printf("delete %p\n", (*it));
 		delete (*it);
 	}
 	fItems.clear();
-	
+
 	//int* foo = new int[100];
 	//printf("foo %p\n", foo);
 }
@@ -175,9 +175,9 @@ ItemView::AttachedToWindow()
 	Window()->AddHandler(&fHighLevelQuery);
 		// temporariliy set here
 		// to receive node monitoring message
-		
+
 	fHighLevelQuery.AddListener(this);
-		
+
 	_Test();
 }
 
@@ -194,9 +194,9 @@ ItemView::MessageReceived(BMessage *message)
 			break;
 		}
 		case (kMsgURIChanged):
-		{			
+		{
 			BString uri;
-			message->FindString("uri", &uri);			
+			message->FindString("uri", &uri);
 			fHighLevelQuery.ChangeDirectory(uri);
 			MakeFocus(true);
 			break;
@@ -241,11 +241,11 @@ ItemView::Draw(BRect updateRect)
 		//if (fDebugDrawing)
 		//	StrokeRect(fDraggedItem->Frame()); //debug
 	}
-	
+
 	// draw items bounding box
 	//if (fDebugDrawing)
 	//	StrokeRect(Extent());
-		
+
 	//float ftime = (float) (system_time() - startTime);
 	//printf("ItemView::Draw drawn %d items from %d in %f µs\n", drawCount, res.size(), ftime);
 }
@@ -271,7 +271,7 @@ ItemView::MouseDown(BPoint point)
 			if (buttons == B_PRIMARY_MOUSE_BUTTON) {
 				(*it)->MouseDown(point);
 			} else if (buttons == B_SECONDARY_MOUSE_BUTTON) {
-				(*it)->ContextDown(point);				
+				(*it)->ContextDown(point);
 				//_MoveTest();
 				//fLayouters[fCurrentLayouterIndex]->GetSpatialCache()->RemoveAllItems();
 				//fLayouters[fCurrentLayouterIndex]->GetSpatialCache()->_UpdateAllItems();
@@ -284,7 +284,7 @@ ItemView::MouseDown(BPoint point)
 
 void
 ItemView::_MoveTest()
-{	
+{
 	bigtime_t startTime = system_time();
 	int count = 0;
 	ItemList::iterator it = fItems.begin();
@@ -299,7 +299,7 @@ ItemView::_MoveTest()
 	float ftime = (float) (system_time() - startTime);
 	printf("ItemView::_MoveTest() moved %d items %f µs\n", count, ftime);
 	fLayouters[fCurrentLayouterIndex]->GetSpatialCache()->_UpdateAllItems();
-	
+
 	Invalidate(Bounds());
 }
 
@@ -309,7 +309,7 @@ ItemView::MouseUp(BPoint point)
 {
 	fDraggedItem = NULL;
 	fDraggingPointOffset.Set(0, 0);
-	
+
 	// do that somewhere else
 	_NotifyExtentChanged();
 }
@@ -327,11 +327,11 @@ ItemView::MouseMoved(BPoint point, uint32 transit, const BMessage* message)
 		nextPos = point - fDraggingPointOffset;
 		fDraggedItem->SetRelativePosition(nextPos);
 		Invalidate(fDraggedItem->Frame());
-		fLayouters[fCurrentLayouterIndex]->GetSpatialCache()->AddItem(fDraggedItem); 
+		fLayouters[fCurrentLayouterIndex]->GetSpatialCache()->AddItem(fDraggedItem);
 			// todo, itemmoved, et autonotify
-		
+
 		/* test colision
-		
+
 		BRect frame(fDraggedItem->Frame());
 		ItemSet res = fLayouters[fCurrentLayouterIndex]->GetSpatialCache()->FindIntersectingItems(frame);
 		ItemSet::iterator it = res.begin();
@@ -346,12 +346,12 @@ ItemView::MouseMoved(BPoint point, uint32 transit, const BMessage* message)
 			if ((*it) != fDraggedItem) {
 				BPoint pos((*it)->Position(fCurrentLayouterIndex));
 				(*it)->SetPosition(pos + (nextPos - currentPos), fCurrentLayouterIndex);
-				
+
 				fLayouters[fCurrentLayouterIndex]->GetSpatialCache()->AddItem((*it));
 				Invalidate((*it)->Frame());
 			}
 		}*/
-		
+
 	}
 }
 
@@ -406,24 +406,24 @@ ItemView::KeyUp(const char* bytes, int32 numBytes)
 			printf("Layouter %lu\n", fCurrentLayouterIndex);
 			Invalidate();
 			break;
-		
+
 		case B_UP_ARROW:
 		{
 			printf("Invert sort\n");
-			printf("Layouter %lu\n", fCurrentLayouterIndex);			
-			
-			fHighLevelQuery.InvertSort();			
+			printf("Layouter %lu\n", fCurrentLayouterIndex);
+
+			fHighLevelQuery.InvertSort();
 			Invalidate();
-			break;			
+			break;
 		}
-		
+
 		case B_DOWN_ARROW:
 		{
-			RemoveAllItems();			
+			RemoveAllItems();
 			Invalidate();
-			break;			
+			break;
 		}
-		
+
 		case 'd':
 			fDebugDrawing = !fDebugDrawing;
 			Invalidate();

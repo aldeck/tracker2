@@ -23,6 +23,8 @@ public:
 
 	virtual	void		AddItem(Item* item) = 0;
 	virtual	void		RemoveItem(Item* item) = 0;
+	virtual	void		ItemChanged(Item* item) = 0;
+	virtual	void		AllItemsChanged(Item* item) = 0;
 	virtual	void		RemoveAllItems() = 0;
 	virtual void		_UpdateAllItems() {}; // test
 

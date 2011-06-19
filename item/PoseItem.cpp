@@ -101,7 +101,8 @@ PoseItem::_Load()
 	 				fTextItems.push_back(new TextItem(parentItemView, entryRef.name));
 	 			} else {
 	 				printf("toobig!=%lu ", info.size);
-	 			}*/	   			
+	 			}*/	
+	 			break; //test  			
 			} else {
 					printf("noattrinfo");
 	   		}
@@ -160,7 +161,7 @@ PoseItem::Frame() const
 	}*/
 	//return fIconItem->Frame();
 	
-	BRect bounds(0, 0, 480, 320);	//unnecessary object creation?
+	BRect bounds(0, 0, 480, 32);	//unnecessary object creation?
 	return bounds.OffsetBySelf(Position()); // toto Position() method
 	
 }

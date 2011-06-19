@@ -36,7 +36,7 @@ Item::AttachedToParent(Item *item)
 
 void
 Item::AddChild(Item *item, const BPoint& relativePosition)
-{	
+{
 	fChildItems.push_back(item);
 	item->SetRelativePosition(relativePosition);
 	item->fParentItem = this;
@@ -45,7 +45,7 @@ Item::AddChild(Item *item, const BPoint& relativePosition)
 
 void
 Item::RemoveChild(Item *item)
-{	
+{
 	ItemVector::iterator it = fChildItems.begin();
 	for (; it != fChildItems.end(); it++) {
 		if (*it == item) {
@@ -94,7 +94,7 @@ Item::Draw()
 	for (; it != fChildItems.end(); it++) {
 		(*it)->Draw();
 	}
-	fParentItemView->StrokeRect(Frame());
+	//fParentItemView->StrokeRect(Frame());
 }
 
 
@@ -112,13 +112,13 @@ Item::Position() const
 BPoint
 Item::RelativePosition() const
 {
-	return fRelativePosition;	
+	return fRelativePosition;
 }
 
 
 void
 Item::SetRelativePosition(const BPoint& position)
-{		
+{
 	//printf("SetRelativePosition x%f y%f %p\n", position.x, position.y, this);
 	fRelativePosition = position;
 	// cache propagate to children

@@ -11,6 +11,10 @@
 #include "Item.h"
 #include "ItemView.h"
 
+#include <OS.h>	// system_time
+
+#include <stdio.h>
+
 
 ReferenceSpatialCache::ReferenceSpatialCache(ItemView* parentItemView)
 	:
@@ -45,6 +49,19 @@ ReferenceSpatialCache::RemoveAllItems()
 {
 	fItems.clear();
 }
+
+
+void
+ReferenceSpatialCache::ItemChanged(Item* item)
+{
+}
+
+
+void
+ReferenceSpatialCache::AllItemsChanged(Item* item)
+{	
+}
+
 
 
 Item*
@@ -85,12 +102,17 @@ ReferenceSpatialCache::FindIntersectingItems(const BPoint &point) const
 ItemSet
 ReferenceSpatialCache::FindIntersectingItems(const BRect &rect) const
 {
+	printf("ReferenceSpatialCache::FindIntersectingItems()");
+	bigtime_t startTime = system_time();	
 	ItemSet res;
 	ItemSet::const_iterator it = fItems.begin();
 	for(; it != fItems.end(); it++) {
 		if ((*it)->Frame().Intersects(rect))
 			res.insert(*it);
 	}
+		
+	bigtime_t time = system_time() - startTime;
+	printf(" %lluµs\n", time);
 	return res;
 }
 
