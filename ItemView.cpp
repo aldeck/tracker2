@@ -6,6 +6,7 @@
  * 		Alexandre Deckner <alex@zappotek.com>
  */
 
+
 #include "ItemView.h"
 
 #include <stdio.h>
@@ -24,6 +25,7 @@
 #include "GridLayouter.h"
 #include "ListLayouter.h"
 #include "SpatialCache.h"
+
 
 const uint32 kMsgDragStarted = 'Drgs';
 
