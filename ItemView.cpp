@@ -230,8 +230,8 @@ ItemView::Draw(BRect updateRect)
 			if ((*it) != fDraggedItem) {
 				//drawCount++;
 				(*it)->Draw();
-				//if (fDebugDrawing)
-				//	StrokeRect((*it)->Frame()); //debug
+				if (fDebugDrawing)
+					StrokeRect((*it)->Frame());
 			}
 		//}
 	}
