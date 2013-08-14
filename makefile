@@ -46,6 +46,7 @@ SRCS= App.cpp \
 	spatialCache/ReferenceSpatialCache.cpp\
 	spatialCache/GenericSpatialCache.cpp\
 	model/HighLevelQuery.cpp\
+       deps/DragTrackingFilter.cpp\
 
 #	specify the resource definition files to use
 #	full path or a relative path to the resource file can be used.
@@ -89,7 +90,7 @@ SYSTEM_INCLUDE_PATHS =
 #	additional paths to look for local headers
 #	thes use the form: #include "header"
 #	source file directories are automatically included
-LOCAL_INCLUDE_PATHS = item layouter model spatialCache haiku_private haiku_private/icon
+LOCAL_INCLUDE_PATHS = item layouter model spatialCache haiku_private haiku_private/icon deps
 
 #	specify the level of optimization that you desire
 #	NONE, SOME, FULL
