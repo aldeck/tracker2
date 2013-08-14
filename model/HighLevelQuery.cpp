@@ -62,6 +62,25 @@ HighLevelQuery::HighLevelQuery()
 }
 
 
+// faire le tri par critere au niveau de la hlq
+// envoyer a chaque modif l'ensemble des items au layouteur qui cree (pool?) puis place les items graphiques
+// si mode graphique non trié alors pas besoin de lire les criteres 
+// on charge toute la query avant d'afficher (donc loading widget pour grand repertoire)
+// il faut donc batcher au maximum les modifs sur le model (batches plus gros sur gros repertoire)
+// en groupant les events de monitoring dans la quantité et dans le temps
+
+// quand tres gros nombre de fichiers ou tres lent, faire un quick scan et afficher une progress bar du chargement
+
+// penser en mode server model - client graphique (comme serveur - navigateur web)
+// doit pouvoir fonctionner avec de tres gros nombre de fichs et des connexions tres lentes au fs
+// la requete hlq est comme une uri file://Data/blo?sort=date+asc
+
+// caching pour acceller si on va et viens entre gros repertoires / ou tres lent? non on utilise le cache systeme tres efficace
+// pas de caching des infos du modele a part le critere de tri, toutes les autres infos sont lues depuis le fs a l'affichage (profitant du caching systeme)
+// il faut donc que le client puisse recuperer les infos completes d'une entry (hlq::getinfo(entry))
+
+// les positions custom sont peristées par le client graphique)
+
 HighLevelQuery::~HighLevelQuery()
 {
 }
@@ -73,7 +92,7 @@ HighLevelQuery::_ManageEntry(const entry_ref& entryRef)
 {
 	
 	
-	BNode node(&entryRef);
+	BNode node(&entryRef); // pool?
 	status_t err2 = node.InitCheck();
 	if (err2 != B_OK) {
 		printf("error opening node err=%s\n", strerror(err2));
@@ -93,29 +112,29 @@ HighLevelQuery::_ManageEntry(const entry_ref& entryRef)
 		
    		
 		// debug check
-		EntryMap::iterator it = fEntries.find(nodeRef);
+		/*EntryMap::iterator it = fEntries.find(nodeRef);
 		if (it != fEntries.end()) {
 			printf("HighLevelQuery::_ManageEntry, already managed node=%lli!!\n", nodeRef.node);
 			return;
-		}
+		}*/
 
 		fEntries.insert(EntryMap::value_type(nodeRef, entryRef));
 
 		// needed for the "query entry rename" problem
 		// attention on recoit deux notifs sur un rename dans un directory, probablement
 		// le watch sur le fichier et sur le repertoire
-		uint32 flags = /*B_WATCH_NAME |*/ B_WATCH_STAT | B_WATCH_ATTR;
-		status_t err = watch_node(&nodeRef, flags, this);
-		if (sVerbose || err != B_OK) {			
-			BPath path(&entryRef);
-			printf("%lu HighLevelQuery::_ManageEntry (%lli, %s). Start watching err=%s\n", fEntries.size(),
-				nodeRef.node, path.Path(), strerror(err));
-		}
+		//uint32 flags = /*B_WATCH_NAME |*/ B_WATCH_STAT | B_WATCH_ATTR;
+		//status_t err = watch_node(&nodeRef, flags, this);
+		//if (sVerbose || err != B_OK) {			
+		//	BPath path(&entryRef);
+		//	printf("%lu HighLevelQuery::_ManageEntry (%lli, %s). Start watching err=%s\n", fEntries.size(),
+		//		nodeRef.node, path.Path(), strerror(err));
+		//}
 		
 		// test, read some attributes
 		
 		//node.RewindAttrs();
-		/*char attrName[B_ATTR_NAME_LENGTH];
+		char attrName[B_ATTR_NAME_LENGTH];
 		//printf("%s [ ", entryRef.name);
 		uint32 totalSize = 0;
 		while (node.GetNextAttrName(attrName) == B_OK) {
@@ -136,7 +155,7 @@ HighLevelQuery::_ManageEntry(const entry_ref& entryRef)
 	   			printf("noattrinfo");
 	   		}
 		}
-		//printf(" ] total %lu\n", totalSize);*/
+		//printf(" ] total %lu\n", totalSize);
 		
 		// test, read one attribute
 		
@@ -150,7 +169,7 @@ HighLevelQuery::_ManageEntry(const entry_ref& entryRef)
 		
 		attribute = entryRef.name;
 			
-		HighLevelQueryResult* result = new HighLevelQueryResult(); //todo nothrow
+		HighLevelQueryResult* result = new HighLevelQueryResult(); //todo nothrow // todo pool
 		result->nodeRef = nodeRef;
 		result->entryRef = entryRef;
 		result->stringAttribute = attribute;
@@ -173,17 +192,13 @@ HighLevelQuery::_ManageEntry(const entry_ref& entryRef)
 			} else {
 				printf("toobig!=%lu ", info.size);
 			}	   			
-   		}*/
-		
+   		}*/	
 		
 		// le but final est de ne lire que les meta infos necessesaires au tri 
 		// si on ne veut pas de tri alors pas besoin de lire quoi que ce soit
 		// dans tous les cas le reste sera lu au moment de l'affichage
 		
-		// on peut ne pas vouloir de tri mais connaitre les positions custom pour
-		// savoir ce qu'on doit afficher en premier
-		
-		// dans les deux cas c'est une information d'affichage
+		// on doit donc avoir un lien
 	
 	}
 }
