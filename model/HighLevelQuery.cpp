@@ -107,6 +107,7 @@ HighLevelQuery::_ManageEntry(const entry_ref& entryRef)
 		if (err4 == B_OK) {
 			nodeRef.device  = nodeStat.st_dev;
 			nodeRef.node = nodeStat.st_ino;
+			printf("s%ld\n", nodeStat.st_size);
 		} else
 			printf("error cant get stat for node err=%s\n", strerror(err4));
 		
@@ -161,18 +162,17 @@ HighLevelQuery::_ManageEntry(const entry_ref& entryRef)
 		
 		//printf("%s [ ", entryRef.name);
 		//printf("[ ");		
-		BString attribute;
+		//BString attribute;
 		/*char *attributeName = "MAIL:from";
 		status_t err3 = node.ReadAttrString(attributeName, &attribute);
 		if (err3 != B_OK)  				
 			printf("can't read attribute %s\n", attributeName);*/
-		
-		attribute = entryRef.name;
 			
 		HighLevelQueryResult* result = new HighLevelQueryResult(); //todo nothrow // todo pool
 		result->nodeRef = nodeRef;
 		result->entryRef = entryRef;
-		result->stringAttribute = attribute;
+		result->stringAttribute = entryRef.name;
+		result->int32Attribute = nodeStat.st_size;
 		//fSortedResults.insert(StringSortedResultMap::value_type(attribute.ToLower(), nodeModel));
 
 		fResults.push_back(result);

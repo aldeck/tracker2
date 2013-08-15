@@ -42,8 +42,8 @@ public:
 	uint32			int32Attribute;
 	
 	bool operator<(const HighLevelQueryResult& other) const {
-		//return 	strcmp(entryRef.name, other.entryRef.name) < 0;
-		return 	strcmp(stringAttribute, other.stringAttribute) < 0;
+		//return 	strcmp(stringAttribute, other.stringAttribute) < 0;
+		return 	int32Attribute < other.int32Attribute;
 	};
 };
 
