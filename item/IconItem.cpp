@@ -11,6 +11,7 @@
 #include <Bitmap.h>
 #include <MimeType.h>
 #include <IconUtils.h>
+#include <TranslationUtils.h>
 
 #include "ItemView.h"
 #include "IconCache.h"
@@ -27,7 +28,7 @@ IconItem::IconItem(ItemView* parentItemView, const entry_ref& ref)
 	// either a type icon, disk icon or custom exe icon...
 	
 	fBitmap = NULL; //new BBitmap(BRect(0, 0, 32, 32), 0, B_RGBA32);
-
+	fThumbnailBitmap = NULL;
 	/*BMessage types;
 	BMimeType::GetInstalledTypes(&types);
 
@@ -79,6 +80,29 @@ IconItem::_Load()
 		fBitmap = IconCache::GetInstance()->GetIcon(fEntryRef);		//use BIconutils
 		//fBitmap = IconCache::GetInstance()->GetIconFromType("application/octet-stream");
 	}
+
+	if (fThumbnailBitmap == NULL) {
+	    BBitmap* bigBitmap = BTranslationUtils::GetBitmap(&fEntryRef);
+		if(bigBitmap == NULL || !bigBitmap->IsValid()) {
+			return;
+		}
+
+		BRect thumbFrame = (0, 0, 32, 32);
+		fThumbnailBitmap = new BBitmap(thumbFrame,
+			B_BITMAP_ACCEPTS_VIEWS, B_RGB32);
+		BView* thumbView = new BView(thumbFrame, "thumbnail",
+			B_FOLLOW_NONE, B_WILL_DRAW);
+		fThumbnailBitmap->AddChild(thumbView);
+
+		thumbView->LockLooper();
+		thumbView->DrawBitmap(bigBitmap, thumbFrame);
+		thumbView->Sync();
+		thumbView->UnlockLooper();
+
+		fThumbnailBitmap->RemoveChild(thumbView);
+		delete thumbView;
+		delete bigBitmap;
+	}
 }
 
 
@@ -99,7 +123,11 @@ IconItem::Draw()
 	if (fBitmap == NULL) {		
 		_Load();
 	}
-	
-	fParentItemView->DrawBitmap(fBitmap, Position());
+
+	if(fThumbnailBitmap != NULL && fThumbnailBitmap->IsValid()) {
+		fParentItemView->DrawBitmap(fThumbnailBitmap, Position());
+	} else {
+	    fParentItemView->DrawBitmap(fBitmap, Position());
+	}
 	Item::Draw();
 }

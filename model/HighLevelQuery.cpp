@@ -177,7 +177,7 @@ HighLevelQuery::_ManageEntry(const entry_ref& entryRef)
 
 		fResults.push_back(result);
 		//_NotifyEvent(HLQ_RESULT_ADDED, &result);
-		//_NotifyEvent(HLQ_FULL_UPDATE, NULL); // TODO partial update
+		_NotifyEvent(HLQ_FULL_UPDATE, NULL); // TODO partial update
 		
 		//printf(" ]\n");	
 		
@@ -222,7 +222,7 @@ HighLevelQuery::_UnmanageEntry(const node_ref& nodeRef)
 		//_NotifyEntryRemoved(nodeRef, (*it).second);		
 		fEntries.erase(it);
 		// TODO remove from fResults, or marge results and fentries
-		//_NotifyEvent(HLQ_FULL_UPDATE, NULL); // TODO partial update
+		_NotifyEvent(HLQ_FULL_UPDATE, NULL); // TODO partial update
 		//printf("count = %li\n", fEntries.size());		
 	} else
 		printf("HighLevelQuery::_UnmanageEntry node %lli is not managed!!!\n", nodeRef.node);

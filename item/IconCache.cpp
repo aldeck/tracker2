@@ -43,7 +43,7 @@ IconCache::GetIcon(const entry_ref& ref)
 {
 	BBitmap* bitmap = new BBitmap(BRect(0, 0, 31, 31), 0, B_RGBA32);
 	status_t status = BNodeInfo::GetTrackerIcon(&ref, bitmap, B_LARGE_ICON);
-	
+
 	if (status != B_OK) {
 		printf("IconCache::GetIcon error, couldn't retrieve icon for ref = '%s'\n", ref.name);
 		delete bitmap;

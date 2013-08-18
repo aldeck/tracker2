@@ -73,7 +73,7 @@ PoseItem::_Load()
 		AddChild(textItem, nameOffset);		
 		nameOffset.y += 16;
 	
-		// test, read some attributes a faire dans un lazy load
+		// test, read some attributes
 		BNode node(&fEntryRef);
 		status_t err2 = node.InitCheck();
 		if (err2 != B_OK) {

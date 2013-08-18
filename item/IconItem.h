@@ -28,6 +28,7 @@ protected:
 	void			_Load();
 
 	BBitmap*		fBitmap;
+	BBitmap*		fThumbnailBitmap;
 	//static int		sIconIndex;
 	entry_ref		fEntryRef;	
 };
